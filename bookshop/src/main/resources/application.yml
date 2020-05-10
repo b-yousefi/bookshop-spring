@@ -1,0 +1,35 @@
+#logging:
+#  level:
+#    org.springframework.data.rest: debug
+
+spring:
+  data:
+    rest:
+      base-path: /api
+
+logging:
+  level:
+    org.springframework.data.rest: debug
+
+bookshop:
+  books:
+    pageSize: 10
+
+
+  discount:
+    codes:
+      abcdef: 10
+
+---
+spring:
+  profiles: prod
+  
+  datasource:
+    url: jdbc:mysql://localhost/tacocloud
+    username: tacouser
+    password: tacopassword
+    
+logging:
+  level:
+    tacos: WARN
+    
