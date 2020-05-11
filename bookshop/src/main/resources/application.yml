@@ -1,11 +1,14 @@
-#logging:
-#  level:
-#    org.springframework.data.rest: debug
-
 spring:
   data:
     rest:
       base-path: /api
+#  datasource:
+#    url: jdbc:mysql://localhost:9090/db_bookshop
+#    username: yousefi
+#    password: yousefi
+
+jwt:
+  secret: mybookshop
 
 logging:
   level:
@@ -23,12 +26,12 @@ bookshop:
 ---
 spring:
   profiles: prod
-  
+
   datasource:
-    url: jdbc:mysql://localhost/tacocloud
-    username: tacouser
-    password: tacopassword
-    
+    url: jdbc:mysql://localhost/bookshop
+    username: yousefi
+    password: yousefi
+
 logging:
   level:
     tacos: WARN

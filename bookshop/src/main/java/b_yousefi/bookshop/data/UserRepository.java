@@ -1,5 +1,6 @@
-package b_yousefi.bookshop.security;
+package b_yousefi.bookshop.data;
 
+import b_yousefi.bookshop.models.User;
 import org.springframework.data.repository.CrudRepository;
 
 /**

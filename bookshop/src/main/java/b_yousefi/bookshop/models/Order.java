@@ -1,6 +1,5 @@
 package b_yousefi.bookshop.models;
 
-import b_yousefi.bookshop.security.User;
 import lombok.Data;
 
 import javax.persistence.*;

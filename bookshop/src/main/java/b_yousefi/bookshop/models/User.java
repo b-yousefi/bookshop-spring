@@ -1,4 +1,4 @@
-package b_yousefi.bookshop.security;
+package b_yousefi.bookshop.models;
 
 import b_yousefi.bookshop.models.DBFile;
 import lombok.AccessLevel;
@@ -32,7 +32,7 @@ public class User implements UserDetails {
     @Pattern(regexp = "[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9]){5,40}$")
     @NotBlank
     private final String username;
-    private final String password;
+    private String password;
     private final String fullname;
 
     @ManyToOne(targetEntity = DBFile.class)
