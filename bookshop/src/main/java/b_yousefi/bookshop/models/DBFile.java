@@ -1,9 +1,6 @@
 package b_yousefi.bookshop.models;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -14,8 +11,9 @@ import javax.persistence.*;
 
 @Data
 @Entity
-//@NoArgsConstructor(access= AccessLevel.PRIVATE, force=true)
-@RequiredArgsConstructor
+@Builder
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class DBFile {
     private static final long serialVersionUID = 1L;
     @Id

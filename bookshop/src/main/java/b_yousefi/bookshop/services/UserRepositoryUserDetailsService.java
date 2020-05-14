@@ -1,6 +1,6 @@
 package b_yousefi.bookshop.services;
 
-import b_yousefi.bookshop.data.UserRepository;
+import b_yousefi.bookshop.jpa.UserRepository;
 import b_yousefi.bookshop.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

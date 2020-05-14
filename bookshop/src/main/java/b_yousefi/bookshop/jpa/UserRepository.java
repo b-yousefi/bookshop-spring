@@ -1,4 +1,4 @@
-package b_yousefi.bookshop.data;
+package b_yousefi.bookshop.jpa;
 
 import b_yousefi.bookshop.models.User;
 import org.springframework.data.repository.CrudRepository;

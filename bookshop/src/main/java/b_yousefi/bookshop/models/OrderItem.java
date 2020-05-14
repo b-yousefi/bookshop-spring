@@ -1,6 +1,6 @@
 package b_yousefi.bookshop.models;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -10,12 +10,22 @@ import javax.persistence.*;
  */
 @Data
 @Entity
+@Builder
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NonNull
     @ManyToOne(targetEntity = Book.class)
     private Book book;
-    private int quantity;
+    @Builder.Default
+    private int quantity = 1;
+
+    @NonNull
+    @ManyToOne(targetEntity = Order.class)
+    private Order order;
 
 }

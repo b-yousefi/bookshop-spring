@@ -1,10 +1,6 @@
 package b_yousefi.bookshop.models;
 
-import b_yousefi.bookshop.models.DBFile;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,10 +15,11 @@ import java.util.Collections;
  * Created by: b.yousefi
  * Date: 5/10/2020
  */
+@Builder
 @Entity
 @Data
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-@RequiredArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class User implements UserDetails {
     private static final long serialVersionUID = 1L;
     @Id
@@ -31,15 +28,17 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     @Pattern(regexp = "[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9]){5,40}$")
     @NotBlank
-    private final String username;
+    private String username;
+    @NotBlank
     private String password;
-    private final String fullname;
+    private String fullName;
 
-    @ManyToOne(targetEntity = DBFile.class)
+    @ManyToOne(targetEntity = DBFile.class, cascade = CascadeType.ALL)
     private DBFile picture;
 
-    @Column(unique = true, nullable = false)
-    private final String phoneNumber;
+    @Column(unique = true)
+    @Pattern(regexp = "^\\+98\\d{10}$")
+    private String phoneNumber;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

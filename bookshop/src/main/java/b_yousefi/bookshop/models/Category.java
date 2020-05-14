@@ -1,11 +1,11 @@
 package b_yousefi.bookshop.models;
 
-import lombok.Data;
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by: b.yousefi
@@ -13,20 +13,20 @@ import java.util.List;
  */
 @Data
 @Entity
+@Builder
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @NotBlank(message = "Category name is required")
     private String name;
+    @Lob
+    @Column(length = 100000)
     private String description;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Category parentCat;
-
-    @OneToMany(mappedBy="parentCat")
-    private List<Category> subCategories = new ArrayList<>();
-
-    @ManyToMany(targetEntity = Book.class)
-    private List<Book> books;
 }
