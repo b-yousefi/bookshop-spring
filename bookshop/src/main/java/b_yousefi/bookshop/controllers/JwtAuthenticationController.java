@@ -1,11 +1,12 @@
 package b_yousefi.bookshop.controllers;
 
-import b_yousefi.bookshop.security.JwtTokenUtil;
-import b_yousefi.bookshop.models.User;
-import b_yousefi.bookshop.services.UserRepositoryUserDetailsService;
 import b_yousefi.bookshop.models.JwtRequest;
 import b_yousefi.bookshop.models.JwtResponse;
+import b_yousefi.bookshop.models.User;
+import b_yousefi.bookshop.security.JwtTokenUtil;
+import b_yousefi.bookshop.services.UserRepositoryUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -49,8 +50,9 @@ public class JwtAuthenticationController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<?> saveUser(@RequestBody User user) throws Exception {
-        return ResponseEntity.ok(userDetailsService.save(user));
+    @ResponseStatus(HttpStatus.CREATED)
+    public User saveUser(@RequestBody User user) {
+        return userDetailsService.save(user);
     }
 
 }

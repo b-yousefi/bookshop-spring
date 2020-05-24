@@ -17,7 +17,7 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Publication {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Publication name is required")

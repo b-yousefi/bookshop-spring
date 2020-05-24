@@ -13,19 +13,21 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"order_id", "book_id"})
+})
 public class OrderItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
-    @ManyToOne(targetEntity = Book.class)
+    @ManyToOne(targetEntity = Book.class, optional = false)
     private Book book;
+
     @Builder.Default
     private int quantity = 1;
 
-    @NonNull
-    @ManyToOne(targetEntity = Order.class)
+    @ManyToOne(targetEntity = Order.class, optional = false)
     private Order order;
 
 }

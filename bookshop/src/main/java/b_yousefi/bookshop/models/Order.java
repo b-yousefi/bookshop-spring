@@ -3,6 +3,7 @@ package b_yousefi.bookshop.models;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -20,17 +21,16 @@ import java.util.Date;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
-    @ManyToOne(targetEntity = User.class)
+    @ManyToOne(targetEntity = User.class, optional = false)
     private User user;
 
-    @NonNull
-    @ManyToOne(targetEntity = Address.class)
-    private Address addressOrder;
+    @ManyToOne(targetEntity = Address.class, optional = false)
+    private Address address;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @CreationTimestamp
     private Date placedAt;
 

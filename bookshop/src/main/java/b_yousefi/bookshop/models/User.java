@@ -8,8 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by: b.yousefi
@@ -20,10 +22,11 @@ import java.util.Collections;
 @Data
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
+@ToString(exclude = "addresses")
 public class User implements UserDetails {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true, nullable = false)
     @Pattern(regexp = "[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9]){5,40}$")
@@ -33,6 +36,9 @@ public class User implements UserDetails {
     private String password;
     private String fullName;
 
+    @Builder.Default
+    private String role = "ROLE_USER";
+
     @ManyToOne(targetEntity = DBFile.class, cascade = CascadeType.ALL)
     private DBFile picture;
 
@@ -40,9 +46,13 @@ public class User implements UserDetails {
     @Pattern(regexp = "^\\+98\\d{10}$")
     private String phoneNumber;
 
+    @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Address> addresses = new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singletonList(new SimpleGrantedAuthority(role));
     }
 
     @Override
@@ -63,5 +73,9 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public boolean isAdmin() {
+        return getRole().equals("ROLE_ADMIN");
     }
 }

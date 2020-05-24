@@ -1,10 +1,7 @@
 package b_yousefi.bookshop.jpa.creation;
 
+import b_yousefi.bookshop.jpa.DataTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.annotation.DirtiesContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,54 +9,50 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by: b.yousefi
  * Date: 5/15/2020
  */
-@DataJpaTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ModelCreationTest {
-    @Autowired
-    TestEntityManager entityManager;
+public class ModelCreationTest extends DataTest {
 
     @Test
     public void testCreateDBFile() {
-        assertThat(ModelFactory.createDBFile(entityManager)).isNotNull();
+        assertThat(createDBFile()).isNotNull();
     }
 
     @Test
     public void testCreateUser() {
-        assertThat(ModelFactory.createUser(entityManager)).isNotNull();
+        assertThat(createUser()).isNotNull();
     }
 
     @Test
     public void testCreateAddress() {
-        assertThat(ModelFactory.createAddress(entityManager)).isNotNull();
+        assertThat(createAddress()).isNotNull();
     }
 
     @Test
     public void testCreateAuthor() {
-        assertThat(ModelFactory.createAuthor(entityManager)).isNotNull();
+        assertThat(createAuthor()).isNotNull();
     }
 
     @Test
     public void testCreateCategory() {
-        assertThat(ModelFactory.createCategory(entityManager)).isNotNull();
+        assertThat(createCategory()).isNotNull();
     }
 
     @Test
     public void testCreatePublication() {
-        assertThat(ModelFactory.createPublication(entityManager)).isNotNull();
+        assertThat(createPublication()).isNotNull();
     }
 
     @Test
     public void testCreateBook() {
-        assertThat(ModelFactory.createBook(entityManager)).isNotNull();
+        assertThat(createBook()).isNotNull();
     }
 
     @Test
     public void testCreateOrder() {
-        assertThat(ModelFactory.createOrder(entityManager)).isNotNull();
+        assertThat(createOrder()).isNotNull();
     }
 
     @Test
     public void testCreateOrderItem() {
-        assertThat(ModelFactory.createOrderItem(entityManager)).isNotNull();
+        assertThat(createOrderItem()).isNotNull();
     }
 }

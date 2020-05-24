@@ -1,23 +1,87 @@
-package b_yousefi.bookshop.jpa.creation;
+package b_yousefi.bookshop.jpa;
 
 import b_yousefi.bookshop.models.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by: b.yousefi
- * Date: 5/14/2020
+ * Date: 5/18/2020
  */
-public class ModelFactory {
+@DataJpaTest
+@ActiveProfiles("test")
+public abstract class DataTest {
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private DBFileRepository dbFileRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private AuthorRepository authorRepository;
+    @Autowired
+    private PublicationRepository publicationRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private BookRepository bookRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
-    public static DBFile createDBFile(TestEntityManager entityManager) {
+    @Autowired
+    private TestEntityManager entityManager;
+
+    public TestEntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    public AddressRepository getAddressRepository() {
+        return addressRepository;
+    }
+
+    public DBFileRepository getDbFileRepository() {
+        return dbFileRepository;
+    }
+
+    public UserRepository getUserRepository() {
+        return userRepository;
+    }
+
+    public AuthorRepository getAuthorRepository() {
+        return authorRepository;
+    }
+
+    public PublicationRepository getPublicationRepository() {
+        return publicationRepository;
+    }
+
+    public CategoryRepository getCategoryRepository() {
+        return categoryRepository;
+    }
+
+    public BookRepository getBookRepository() {
+        return bookRepository;
+    }
+
+    public OrderRepository getOrderRepository() {
+        return orderRepository;
+    }
+
+    public OrderItemRepository getOrderItemRepository() {
+        return orderItemRepository;
+    }
+
+    public DBFile createDBFile() {
         DBFile dbFile = null;
         try {
             File file = ResourceUtils.getFile("src/test/resources/Jane_Austen.jpg");
@@ -34,7 +98,7 @@ public class ModelFactory {
         return dbFile;
     }
 
-    public static User createUser(TestEntityManager entityManager) {
+    public User createUser() {
         User user = User.builder()
                 .username("b_yousefi")
                 .fullName("Behnaz Yousefi")
@@ -45,8 +109,8 @@ public class ModelFactory {
         return user;
     }
 
-    public static Address createAddress(TestEntityManager entityManager) {
-        User user = createUser(entityManager);
+    public Address createAddress() {
+        User user = createUser();
         Address address = Address.builder()
                 .state("Tehran")
                 .city("Tehran")
@@ -57,7 +121,7 @@ public class ModelFactory {
         return address;
     }
 
-    public static Author createAuthor(TestEntityManager entityManager) {
+    public Author createAuthor() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(1775, Calendar.DECEMBER, 16);
         Author author = Author.builder()
@@ -71,7 +135,7 @@ public class ModelFactory {
         return author;
     }
 
-    public static Category createCategory(TestEntityManager entityManager) {
+    public Category createCategory() {
         Category category = Category.builder()
                 .name("Non-Fiction")
                 .description("Nonfiction or non-fiction is any document, or content that purports in good faith " +
@@ -82,7 +146,7 @@ public class ModelFactory {
         return category;
     }
 
-    public static Publication createPublication(TestEntityManager entityManager) {
+    public Publication createPublication() {
         Publication publication = Publication.builder()
                 .name("Oxford")
                 .website("www.oxford.com")
@@ -93,11 +157,11 @@ public class ModelFactory {
         return publication;
     }
 
-    public static Book createBook(TestEntityManager entityManager) {
-        Set<Author> authors = new HashSet<>();
-        authors.add(createAuthor(entityManager));
+    public Book createBook() {
+        List<Author> authors = new ArrayList<>();
+        authors.add(createAuthor());
         Set<Category> categories = new HashSet<>();
-        categories.add(createCategory(entityManager));
+        categories.add(createCategory());
         Book book = Book.builder()
                 .name("Pride And Prejudice")
                 .ISBN("0192802380")
@@ -107,30 +171,29 @@ public class ModelFactory {
                         "and comes to appreciate the difference between superficial goodness and actual goodness. " +
                         "Its humour lies in its honest depiction of manners, education, marriage, and money during the Regency era in Great Britain")
                 .authors(authors)
-                .publication(createPublication(entityManager))
+                .publication(createPublication())
                 .categories(categories)
                 .build();
         entityManager.persistAndFlush(book);
         return book;
     }
 
-    public static Order createOrder(TestEntityManager entityManager) {
-        Address address = createAddress(entityManager);
+    public Order createOrder() {
+        Address address = createAddress();
         Order order = Order.builder()
                 .user(address.getUser())
-                .addressOrder(address)
+                .address(address)
                 .build();
         entityManager.persistAndFlush(order);
         return order;
     }
 
-    public static OrderItem createOrderItem(TestEntityManager entityManager) {
+    public OrderItem createOrderItem() {
         OrderItem orderItem = OrderItem.builder()
-                .order(createOrder(entityManager))
-                .book(createBook(entityManager))
+                .order(createOrder())
+                .book(createBook())
                 .build();
         entityManager.persistAndFlush(orderItem);
         return orderItem;
     }
-
 }

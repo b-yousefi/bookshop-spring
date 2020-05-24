@@ -6,7 +6,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,18 +23,19 @@ import java.util.Set;
 public class Book {
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank(message = "Book name is required")
     private String name;
     private Date publishedDay;
 
+    @Builder.Default
     @ManyToMany(targetEntity = Author.class)
-    @Size(min = 1, message = "Each book must have at least one author")
-    private Set<Author> authors;
+    @JoinTable(name = "book_author", joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id"))
+    private List<Author> authors = new ArrayList<>();
 
-    @NonNull
-    @ManyToOne(targetEntity = Publication.class, cascade = CascadeType.ALL)
+    @ManyToOne(targetEntity = Publication.class, optional = false)
     private Publication publication;
 
     @Pattern(regexp = "^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$",
@@ -43,6 +46,8 @@ public class Book {
     private String summary;
 
     @ManyToMany(targetEntity = Category.class)
+    @JoinTable(name = "book_category", joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
     @Size(min = 1, message = "Each book must have at least one category")
     private Set<Category> categories;
 }

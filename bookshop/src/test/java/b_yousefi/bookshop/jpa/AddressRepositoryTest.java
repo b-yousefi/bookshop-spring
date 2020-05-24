@@ -1,49 +1,32 @@
 package b_yousefi.bookshop.jpa;
 
-import b_yousefi.bookshop.jpa.creation.ModelFactory;
 import b_yousefi.bookshop.models.Address;
 import b_yousefi.bookshop.models.User;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
-class AddressRepositoryTest {
-    @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+class AddressRepositoryTest extends DataTest {
 
     private User user;
-
-    @AfterEach
-    public void cleanup() {
-        addressRepository.deleteAll();
-        userRepository.deleteAll();
-    }
+    private Address address;
 
     @BeforeEach
     public void setUp() {
-        Address address = ModelFactory.createAddress(entityManager);
-        user = address.getUser();
+        address = createAddress();
+        getEntityManager().clear();
+        user = getUserRepository().findByUsername(address.getUser().getUsername());
+        address = getAddressRepository().findAll().iterator().next();
     }
 
     @Test
     public void whenFindAll_thenReturnAddressList() {
         // when
-        Iterable<Address> addresses = addressRepository.findAll();
+        Iterable<Address> addresses = getAddressRepository().findAll();
 
         // then
         assertThat(addresses).hasSize(1);
@@ -53,16 +36,29 @@ class AddressRepositoryTest {
     public void whenFindByUser_thenReturnAddressList() {
         Pageable sortedByZipCode =
                 PageRequest.of(0, 3, Sort.by("zipCode"));
-        assertThat(addressRepository.findByUser_Id(user.getId(), sortedByZipCode)).hasSize(1);
+        assertThat(getAddressRepository().findAllByUser_username(user.getUsername(), sortedByZipCode)).hasSize(1);
     }
 
     @Test
-    public void whenUserIsRomovedItsAddressesRmoved() {
-        entityManager.remove(user);
-        assertThat(userRepository.findByUsername(user.getUsername())).isNull();
+    public void when_address_is_removed_user_is_not_removed() {
+        assertThat(getAddressRepository().findAll()).hasSize(1);
+        assertThat(getUserRepository().findAll()).hasSize(1);
+        getAddressRepository().delete(address);
+        getEntityManager().flush();
+        getEntityManager().clear();
+        assertThat(getAddressRepository().findAll()).hasSize(0);
+        assertThat(getUserRepository().findAll()).hasSize(1);
+    }
+
+    @Test
+    public void whenUserIsRemovedItsAddressesRemoved() {
+        getEntityManager().remove(user);
+        getEntityManager().flush();
+        assertThat(getUserRepository().findByUsername(user.getUsername())).isNull();
         Pageable sortedByZipCode =
                 PageRequest.of(0, 3, Sort.by("zipCode"));
-        assertThat(addressRepository.findAll()).hasSize(0);
-        assertThat(addressRepository.findByUser_Id(user.getId(), sortedByZipCode)).hasSize(0);
+
+        assertThat(getAddressRepository().findAll()).hasSize(0);
+        assertThat(getAddressRepository().findAllByUser_username(user.getUsername(), sortedByZipCode)).hasSize(0);
     }
 }

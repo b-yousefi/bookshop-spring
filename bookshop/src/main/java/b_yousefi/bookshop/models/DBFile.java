@@ -17,7 +17,7 @@ import javax.persistence.*;
 public class DBFile {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String fileName;
 
@@ -25,5 +25,4 @@ public class DBFile {
 
     @Lob
     private byte[] data;
-
 }

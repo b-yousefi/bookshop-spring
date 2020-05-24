@@ -2,37 +2,41 @@ spring:
   data:
     rest:
       base-path: /api
-#  datasource:
-#    url: jdbc:mysql://localhost:9090/db_bookshop
-#    username: yousefi
-#    password: yousefi
 
 jwt:
   secret: mybookshop
 
 logging:
+  config: src/main/resources/logback.xml
   level:
     org.springframework.data.rest: debug
-
-bookshop:
-  books:
-    pageSize: 10
-
-
-  discount:
-    codes:
-      abcdef: 10
 
 ---
 spring:
   profiles: prod
 
   datasource:
-    url: jdbc:mysql://localhost/bookshop
-    username: yousefi
-    password: yousefi
+    url: jdbc:mysql://localhost:3306/db_bookshop
+    username: b_yousefi
+    password: b_yousefi
+  jpa:
+    hibernate:
+      use-new-id-generator-mappings: false
+      #for database auto creation
+#      ddl-auto : create-drop
+    #for database auto creation
+    generate-ddl: true
+
 
 logging:
+  config: src/main/resources/logback-prod.xml
   level:
-    tacos: WARN
-    
+    b_yousefi: WARN
+
+---
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    username: sa
+    password: sa

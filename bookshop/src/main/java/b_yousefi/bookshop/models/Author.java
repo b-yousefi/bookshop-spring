@@ -4,7 +4,9 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static javax.persistence.CascadeType.ALL;
 
@@ -18,11 +20,12 @@ import static javax.persistence.CascadeType.ALL;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
+@ToString(exclude = "books")
 public class Author {
     private static final long serialVersionUID = 1L;
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank(message = "fullName is required")
     @Column(unique = true)
@@ -34,13 +37,14 @@ public class Author {
     @OneToOne(targetEntity = DBFile.class, cascade = ALL)
     private DBFile picture;
 
-//    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "authors")
-//    private List<Book> books = new ArrayList<>();
-//
-//    @PreRemove
-//    public void removeFromBooks() {
-//        for (Book book : books) {
-//            book.getAuthors().remove(this);
-//        }
-//    }
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "authors")
+    private List<Book> books = new ArrayList<>();
+
+    @PreRemove
+    public void removeFromBooks() {
+        for (Book book : books) {
+            book.getAuthors().remove(this);
+        }
+    }
 }

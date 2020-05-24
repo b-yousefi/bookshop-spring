@@ -1,98 +1,78 @@
 package b_yousefi.bookshop.jpa;
 
 import b_yousefi.bookshop.models.Category;
-import org.junit.jupiter.api.AfterEach;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+
+import javax.persistence.PersistenceException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by: b.yousefi
  * Date: 5/13/2020
  */
-
-@DataJpaTest
-public class CategoryRepositoryTest {
-    @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
+public class CategoryRepositoryTest extends DataTest {
+    private Category category1;
+    private Category category2;
+    private Category category3;
 
     @BeforeEach
-    @AfterEach
-    public void cleanup() {
-        categoryRepository.deleteAll();
-    }
-
-
-    @Test
-    public void saveWithParent() {
-        Category parent = Category.builder()
+    public void setup() {
+        category1 = Category.builder()
                 .name("Fiction")
                 .description("Fiction books contain a made-up story – a story that did not actually happen in real life. " +
                         "These stories are derived from the imagination and creativity of the authors and are not based on facts")
                 .build();
-        entityManager.persist(parent);
-        Category category = Category.builder()
+        getEntityManager().persistAndFlush(category1);
+        category2 = Category.builder()
                 .name("Fairy Tale")
                 .description("Fairy tale is usually a story for children that involves imaginary creatures and magical events.")
-                .parentCat(parent)
                 .build();
-        assertThat(entityManager.persistAndGetId(category)).isNotNull();
+        getEntityManager().persistAndFlush(category2);
+        category3 = Category.builder()
+                .name("Mythology")
+                .description("These books include a legend or traditional narrative, often based in part on historical events, " +
+                        "that reveals human behavior and natural phenomena by its symbolism and often pertaining to the actions of the gods.")
+                .build();
+    }
+
+    @Test
+    public void saveWithParent() {
+        category2.setParentCat(category1);
+        assertThat(getEntityManager().persistAndGetId(category2)).isNotNull();
     }
 
     @Test
     public void findWithParent() {
-        Category parent = Category.builder()
-                .name("Fiction")
-                .description("Fiction books contain a made-up story – a story that did not actually happen in real life. " +
-                        "These stories are derived from the imagination and creativity of the authors and are not based on facts")
-                .build();
-        entityManager.persist(parent);
-        Category category = Category.builder()
-                .name("Fairy Tale")
-                .description("Fairy tale is usually a story for children that involves imaginary creatures and magical events.")
-                .parentCat(parent)
-                .build();
-        entityManager.persist(category);
-        Category category2 = Category.builder()
-                .name("Mythology")
-                .description("These books include a legend or traditional narrative, often based in part on historical events, " +
-                        "that reveals human behavior and natural phenomena by its symbolism and often pertaining to the actions of the gods.")
-                .parentCat(parent)
-                .build();
-        entityManager.persist(category2);
-        assertThat(categoryRepository.findAllByParentCat(parent)).hasSize(2);
+        category2.setParentCat(category1);
+        getEntityManager().persist(category2);
+        category3.setParentCat(category1);
+        getEntityManager().persistAndFlush(category3);
+        assertThat(getCategoryRepository().findAllByParentCat_Id(category1.getId())).hasSize(2);
     }
 
     @Test
     public void removeParent() {
-        Category parent = Category.builder()
-                .name("Fiction")
-                .description("Fiction books contain a made-up story – a story that did not actually happen in real life. " +
-                        "These stories are derived from the imagination and creativity of the authors and are not based on facts")
-                .build();
-        entityManager.persist(parent);
-        Category category = Category.builder()
-                .name("Fairy Tale")
-                .description("Fairy tale is usually a story for children that involves imaginary creatures and magical events.")
-                .parentCat(parent)
-                .build();
-        entityManager.persist(category);
-        Category category2 = Category.builder()
-                .name("Mythology")
-                .description("These books include a legend or traditional narrative, often based in part on historical events, " +
-                        "that reveals human behavior and natural phenomena by its symbolism and often pertaining to the actions of the gods.")
-                .parentCat(parent)
-                .build();
-        entityManager.persist(category2);
-        entityManager.remove(parent);
-        assertThat(categoryRepository.findAll()).hasSize(0);
+        category2.setParentCat(category1);
+        getEntityManager().persist(category2);
+        category3.setParentCat(category1);
+        getEntityManager().persistAndFlush(category3);
+        getEntityManager().remove(category1);
+        assertThat(getCategoryRepository().findAll()).hasSize(0);
+    }
+
+    @Test
+    void testUniqueNameInEachCategory() {
+        category2.setParentCat(category1);
+        getEntityManager().persist(category2);
+        category3.setParentCat(category1);
+        category3.setName(category2.getName());
+        PersistenceException exception = assertThrows(PersistenceException.class, () ->
+                getEntityManager().persistAndFlush(category3));
+        assertTrue(exception.getCause() instanceof ConstraintViolationException);
     }
 }
