@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -70,8 +69,23 @@ public class UserTest extends IntegratedTest {
                 .andExpect(jsonPath("$.username").value(getUser().getUsername()))
                 .andExpect(jsonPath("$._links.self.href", endsWith("2")));
 
+        //findUser
+        getMVC().perform(get(getSearchPathTo(USERS_PATH_NAME) + "findUser")
+                .param("username","user_test1")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("$.username").value(getUser().getUsername()))
+                .andExpect(jsonPath("$._links.self.href", endsWith("2")));
+
         //user with role USER cannot get other users information
         getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 1)
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isForbidden());
+
+        //findUser
+        getMVC().perform(get(getSearchPathTo(USERS_PATH_NAME) + "findUser")
+                .param("username","admin")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isForbidden());
@@ -82,8 +96,14 @@ public class UserTest extends IntegratedTest {
         //users with ADMIN role can get from users path
         getMVC().perform(get(getPathTo(USERS_PATH_NAME)).header("Authorization", getAdminToken())
                 .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andDo(print())
                 .andExpect(status().isOk());
+        //findByUsername
+        getMVC().perform(get(getSearchPathTo(USERS_PATH_NAME) + "findUser")
+                .param("username","user_test1")
+                .header("Authorization", getAdminToken())
+                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
+                .andExpect(jsonPath("$.username").value(getUser().getUsername()))
+                .andExpect(jsonPath("$._links.self.href", endsWith("2")));
     }
 
 

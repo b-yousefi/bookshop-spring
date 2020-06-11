@@ -101,7 +101,8 @@ public abstract class DataTest {
     public User createUser() {
         User user = User.builder()
                 .username("b_yousefi")
-                .fullName("Behnaz Yousefi")
+                .firstName("Behnaz")
+                .lastName("Yousefi")
                 .phoneNumber("+989352229966")
                 .password("b_yousefi")
                 .build();

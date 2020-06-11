@@ -52,6 +52,7 @@ public class CategoryRepositoryTest extends DataTest {
         getEntityManager().persist(category2);
         category3.setParentCat(category1);
         getEntityManager().persistAndFlush(category3);
+        assertThat(getCategoryRepository().findAllByParentCat_Id(null)).hasSize(1);
         assertThat(getCategoryRepository().findAllByParentCat_Id(category1.getId())).hasSize(2);
     }
 
@@ -61,6 +62,7 @@ public class CategoryRepositoryTest extends DataTest {
         getEntityManager().persist(category2);
         category3.setParentCat(category1);
         getEntityManager().persistAndFlush(category3);
+        getEntityManager().refresh(category1);
         getEntityManager().remove(category1);
         assertThat(getCategoryRepository().findAll()).hasSize(0);
     }

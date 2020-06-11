@@ -6,6 +6,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * Created by: b.yousefi
@@ -34,4 +35,8 @@ public class Category {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "parent_cat_id")
     private Category parentCat;
+
+
+    @OneToMany(mappedBy = "parentCat", orphanRemoval = true)
+    private List<Category> subCategories;
 }

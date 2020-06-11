@@ -34,8 +34,14 @@ public class User implements UserDetails {
     private String username;
     @NotBlank
     private String password;
-    private String fullName;
+    @NotBlank
+    @Column(nullable = false)
+    private String firstName;
+    @NotBlank
+    @Column(nullable = false)
+    private String lastName;
 
+    @Column(updatable = false)
     @Builder.Default
     private String role = "ROLE_USER";
 
