@@ -1,5 +1,6 @@
 package b_yousefi.bookshop.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -49,13 +50,17 @@ public class User implements UserDetails {
     private DBFile picture;
 
     @Column(unique = true)
-    @Pattern(regexp = "^\\+98\\d{10}$")
+    @Pattern(regexp = "^\\d{12}$")
     private String phoneNumber;
+
+    @Column(unique = true)
+    private String email;
 
     @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Address> addresses = new ArrayList<>();
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(role));

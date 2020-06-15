@@ -20,7 +20,7 @@ public class UserController {
         this.userDetailsService = userDetailsService;
     }
 
-    @RequestMapping(value = "/users/{userId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/users/{userId}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<User> saveUser(@PathVariable Long userId, @RequestBody User user) {
         user.setId(userId);
