@@ -103,7 +103,8 @@ public abstract class DataTest {
                 .username("b_yousefi")
                 .firstName("Behnaz")
                 .lastName("Yousefi")
-                .phoneNumber("+989352229966")
+                .email("b.yousefi2911@gmail.com")
+                .phoneNumber("989352229966")
                 .password("b_yousefi")
                 .build();
         entityManager.persistAndFlush(user);

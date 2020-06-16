@@ -23,7 +23,11 @@ public class UserTest extends IntegratedTest {
     void register() throws Exception {
         getMVC().perform(post("/register")
                 .contentType(MediaType.APPLICATION_JSON).content("{ \"username\" : \"b_yousefi\"" +
-                        ", \"password\" : \"b_yousefi\" }"))
+                        ", \"password\" : \"b_yousefi\" " +
+                        ", \"firstName\" : \"Behnaz\" " +
+                        ", \"lastName\" : \"Yousefi\" " +
+                        ", \"email\" : \"b.yousefi2912@gmail.com\" " +
+                        "}"))
                 .andExpect(status().isCreated());
     }
 
@@ -31,7 +35,11 @@ public class UserTest extends IntegratedTest {
     void authenticate() throws Exception {
         getMVC().perform(post("/register")
                 .contentType(MediaType.APPLICATION_JSON).content("{ \"username\" : \"b_yousefi\"" +
-                        ", \"password\" : \"b_yousefi\" }"))
+                        ", \"password\" : \"b_yousefi\" " +
+                        ", \"firstName\" : \"Behnaz\" " +
+                        ", \"lastName\" : \"Yousefi\" " +
+                        ", \"email\" : \"b.yousefi2912@gmail.com\" " +
+                        "}"))
                 .andExpect(status().isCreated());
 
         getMVC().perform(post("/authenticate")
@@ -44,12 +52,16 @@ public class UserTest extends IntegratedTest {
     void authenticate_with_wrong_password_gets_Unauthorized() throws Exception {
         getMVC().perform(post("/register")
                 .contentType(MediaType.APPLICATION_JSON).content("{ \"username\" : \"b_yousefi\"" +
-                        ", \"password\" : \"b_yousefi\" }"))
+                        ", \"password\" : \"b_yousefi2\" " +
+                        ", \"firstName\" : \"Behnaz\" " +
+                        ", \"lastName\" : \"Yousefi\" " +
+                        ", \"email\" : \"b.yousefi2912@gmail.com\" " +
+                        "}"))
                 .andExpect(status().isCreated());
 
         getMVC().perform(post("/authenticate")
                 .contentType(MediaType.APPLICATION_JSON).content("{ \"username\" : \"b_yousefi\"" +
-                        ", \"password\" : \"b_yousefi2\" }"))
+                        ", \"password\" : \"b_yousefi\" }"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -71,7 +83,7 @@ public class UserTest extends IntegratedTest {
 
         //findUser
         getMVC().perform(get(getSearchPathTo(USERS_PATH_NAME) + "findUser")
-                .param("username","user_test1")
+                .param("username", "user_test1")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(jsonPath("$.username").value(getUser().getUsername()))
@@ -85,7 +97,7 @@ public class UserTest extends IntegratedTest {
 
         //findUser
         getMVC().perform(get(getSearchPathTo(USERS_PATH_NAME) + "findUser")
-                .param("username","admin")
+                .param("username", "admin")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isForbidden());
@@ -99,7 +111,7 @@ public class UserTest extends IntegratedTest {
                 .andExpect(status().isOk());
         //findByUsername
         getMVC().perform(get(getSearchPathTo(USERS_PATH_NAME) + "findUser")
-                .param("username","user_test1")
+                .param("username", "user_test1")
                 .header("Authorization", getAdminToken())
                 .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
                 .andExpect(jsonPath("$.username").value(getUser().getUsername()))
@@ -123,6 +135,10 @@ public class UserTest extends IntegratedTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
                         "  \"username\": \"username1\"," +
                         "  \"password\": \"username1\"," +
+                        "  \"phoneNumber\": \"989352228877\"" +
+                        ", \"firstName\" : \"Behnaz\" " +
+                        ", \"lastName\" : \"Yousefi\" " +
+                        ", \"email\" : \"b.yousefi2912@gmail.com\" " +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
@@ -132,7 +148,10 @@ public class UserTest extends IntegratedTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
                         "  \"username\": \"username1\"," +
                         "  \"password\": \"username1\"," +
-                        "  \"phoneNumber\": \"+989352229966\"" +
+                        "  \"phoneNumber\": \"989352228877\"" +
+                        ", \"firstName\" : \"Behnaz\" " +
+                        ", \"lastName\" : \"Yousefi\" " +
+                        ", \"email\" : \"b.yousefi2912@gmail.com\" " +
                         "}")
                 .header("Authorization", getAdminToken())
                 .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
@@ -174,7 +193,10 @@ public class UserTest extends IntegratedTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
                         "  \"username\": \"username1\"," +
                         "  \"password\": \"username1\"," +
-                        "  \"phoneNumber\": \"+989352229966\"" +
+                        "  \"phoneNumber\": \"+989352225566\"" +
+                        ", \"firstName\" : \"Behnaz\" " +
+                        ", \"lastName\" : \"Yousefi\" " +
+                        ", \"email\" : \"b.yousefi2912@gmail.com\" " +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
@@ -184,18 +206,21 @@ public class UserTest extends IntegratedTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
                         "  \"username\": \"user_test1\"," +
                         "  \"password\": \"user_test1\"," +
-                        "  \"phoneNumber\": \"+989352229988\"" +
+                        "  \"phoneNumber\": \"989352229988\"" +
+                        ", \"firstName\" : \"Behnaz\" " +
+                        ", \"lastName\" : \"Yousefi\" " +
+                        ", \"email\" : \"b.yousefi2912@gmail.com\" " +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
 
         //check that phone number has successfully been updated
         getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 2)
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(jsonPath("$.username").value("user_test1"))
-                .andExpect(jsonPath("$.phoneNumber").value("+989352229988"));
+                .andExpect(jsonPath("$.phoneNumber").value("989352229988"));
     }
 
     @Test
@@ -212,11 +237,14 @@ public class UserTest extends IntegratedTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
                         "  \"username\": \"username1\"," +
                         "  \"password\": \"username1\"," +
-                        "  \"phoneNumber\": \"+989352229966\"" +
+                        "  \"phoneNumber\": \"989352228866\"" +
+                        ", \"firstName\" : \"Behnaz\" " +
+                        ", \"lastName\" : \"Yousefi\" " +
+                        ", \"email\" : \"b.yousefi2912@gmail.com\" " +
                         "}")
                 .header("Authorization", getAdminToken())
                 .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
 
         //check the username has changed to "username1"
         getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 2)
@@ -248,7 +276,10 @@ public class UserTest extends IntegratedTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
                         "  \"username\": \"username1\"," +
                         "  \"password\": \"username1\"," +
-                        "  \"phoneNumber\": \"+989352229966\"" +
+                        "  \"phoneNumber\": \"989352228877\"" +
+                        ", \"firstName\" : \"Behnaz\" " +
+                        ", \"lastName\" : \"Yousefi\" " +
+                        ", \"email\" : \"b.yousefi2912@gmail.com\" " +
                         "}")
                 .header("Authorization", getAdminToken())
                 .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
