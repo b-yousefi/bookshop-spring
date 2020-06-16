@@ -58,6 +58,22 @@ public class CategoryTest extends IntegratedTest {
     }
 
     @Test
+    void when_post_category_with_ROLE_ADMIN_with_name_exists_in_parent_get_error() throws Exception {
+        String result = getMVC().perform(get(getPathTo(CATEGORIES_PATH_NAME) + 1))
+                .andReturn().getResponse().getContentAsString();
+        String pathToCat = getObjectMapper().readTree(result).path("_links").path("self").path("href").asText();
+        //check that users with role ADMIN have the permission to add a category
+        getMVC().perform(post(getPathTo(CATEGORIES_PATH_NAME))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"name\" : \"Fairy Tale\" " +
+                        ", \"parentCat\":\"" + pathToCat + "\"}")
+                .header("Authorization", getAdminToken())
+                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN"))
+        )
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void when_post_category_with_ROLE_USER_then_gets_FORBIDDEN() throws Exception {
         //check that users with role USER don't have the permission to add a category
         getMVC().perform(post(getPathTo(CATEGORIES_PATH_NAME))

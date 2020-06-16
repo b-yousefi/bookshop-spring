@@ -4,6 +4,7 @@ import b_yousefi.bookshop.models.JwtRequest;
 import b_yousefi.bookshop.models.JwtResponse;
 import b_yousefi.bookshop.models.User;
 import b_yousefi.bookshop.security.JwtTokenUtil;
+import b_yousefi.bookshop.security.TokenAuthenticationException;
 import b_yousefi.bookshop.services.UserRepositoryUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,9 +44,9 @@ public class JwtAuthenticationController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
+            throw new TokenAuthenticationException("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            throw new TokenAuthenticationException("INVALID_CREDENTIALS", e);
         }
     }
 

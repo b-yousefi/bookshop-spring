@@ -2,7 +2,6 @@ package b_yousefi.bookshop.jpa;
 
 import b_yousefi.bookshop.models.Author;
 import b_yousefi.bookshop.models.Book;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
@@ -11,15 +10,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.groups.Default;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by: b.yousefi
@@ -218,7 +216,7 @@ public class BookRepositoryTest extends DataTest {
                 .publication(createPublication())
                 .ISBN("0192802380")
                 .build();
-        assertThrows(javax.validation.ConstraintViolationException.class, () ->
+        assertThrows(ConstraintViolationException.class, () ->
                 getEntityManager().persist(book));
     }
 
@@ -230,9 +228,8 @@ public class BookRepositoryTest extends DataTest {
                 .name("The Alchemist")
                 .ISBN("0192802380")
                 .build();
-        PersistenceException exception = assertThrows(PersistenceException.class, () ->
+        assertThrows(ConstraintViolationException.class, () ->
                 getEntityManager().persist(book));
-        assertTrue(exception.getCause() instanceof ConstraintViolationException);
     }
 
     @Test
