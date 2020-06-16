@@ -3,6 +3,7 @@ package b_yousefi.bookshop.models;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -18,12 +19,17 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String street;
+
     private String state;
+
     private String city;
+
     private String zipCode;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id")
+    @NotNull(message = "Address must have a user")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER__ADDRESS"))
     private User user;
 }

@@ -6,6 +6,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 
@@ -24,10 +25,14 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(targetEntity = User.class, optional = false)
+    @NotNull(message = "Every order must have a user")
+    @ManyToOne(targetEntity = User.class)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER__ORDER"))
     private User user;
 
-    @ManyToOne(targetEntity = Address.class, optional = false)
+    @NotNull(message = "Every order must have an address")
+    @ManyToOne(targetEntity = Address.class)
+    @JoinColumn(name = "address_id", foreignKey = @ForeignKey(name = "FK_ADDRESS__ORDER"))
     private Address address;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")

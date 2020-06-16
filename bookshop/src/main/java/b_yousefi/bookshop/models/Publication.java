@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * Created by: b.yousefi
@@ -22,7 +23,9 @@ public class Publication {
 
     @NotBlank(message = "Publication name is required")
     private String name;
+
     @Lob
+    @Size(max = 100000, message = "Description length cannot be more than 100000 characters")
     @Column(length = 100000)
     private String description;
 

@@ -24,36 +24,42 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @ToString(exclude = "addresses")
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "UK_USER_username", columnNames = {"username"}),
+        @UniqueConstraint(name = "UK_USER_email", columnNames = {"email"}),
+        @UniqueConstraint(name = "UK_USER_phoneNumber", columnNames = {"phoneNumber"})
+})
 public class User implements UserDetails {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, nullable = false)
-    @Pattern(regexp = "[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9]){5,40}$")
-    @NotBlank
+
+    @Pattern(regexp = "[a-zA-Z0-9]+([_ -]?[a-zA-Z0-9]){5,40}$", message = "Username doesn't follow the acceptable pattern")
+    @NotBlank(message = "Username cannot be blank")
     private String username;
-    @NotBlank
+
+    @NotBlank(message = "Password cannot be blank")
     private String password;
-    @NotBlank
-    @Column(nullable = false)
+
+    @NotBlank(message = "First Name cannot be blank")
     private String firstName;
-    @NotBlank
-    @Column(nullable = false)
+
+    @NotBlank(message = "Last Name cannot be blank")
     private String lastName;
 
     @Column(updatable = false)
     @Builder.Default
     private String role = "ROLE_USER";
 
-    @ManyToOne(targetEntity = DBFile.class, cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = DBFile.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "picture_id", foreignKey = @ForeignKey(name = "FK_PICTURE__USER"))
     private DBFile picture;
 
-    @Column(unique = true)
-    @Pattern(regexp = "^\\d{12}$")
+    @Pattern(regexp = "^\\d{12}$", message = "Phone number is not acceptable")
     private String phoneNumber;
 
-    @Column(unique = true)
+    @NotBlank(message = "Email is required")
     private String email;
 
     @Builder.Default
