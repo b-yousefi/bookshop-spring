@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static javax.persistence.CascadeType.ALL;
+
 /**
  * Created by: b.yousefi
  * Date: 5/10/2020
@@ -57,4 +59,8 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "category_id", foreignKey = @ForeignKey(name = "FK_CATEGORY__BOOK")))
     @Size(min = 1, message = "Each book must have at least one category")
     private Set<Category> categories;
+
+    @OneToOne(targetEntity = DBFile.class, cascade = ALL)
+    @JoinColumn(name = "picture_id", foreignKey = @ForeignKey(name = "FK_PICTURE__BOOK"))
+    private DBFile picture;
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
  * Created by: b.yousefi
  * Date: 5/10/2020
  */
+@CrossOrigin(origins = {"http://localhost:3000"})
 public interface BookRepository extends CrudRepository<Book, Long> {
     @RestResource(rel = "byAuthorId", path = "byAuthorId")
     Page<Book> findByAuthors_Id(@Param("authorId") Long authorId, Pageable pageable);
@@ -24,7 +26,7 @@ public interface BookRepository extends CrudRepository<Book, Long> {
     @RestResource(rel = "byCategoryId", path = "byCategoryId")
     Page<Book> findByCategories_Id(@Param("categoryId") Long categoryId, Pageable pageable);
 
-    @Query("select distinct book from Book book where (:publicationIds is null or book.publication.id in :publicationIds) ")
+    @Query("select distinct book from Book book where (book.publication.id in :publicationIds or :publicationIds is null) ")
     @RestResource(rel = "filterByPublication", path = "filterByPublication", exported = false)
     Page<Book> findByPublication_Ids(@Param("publicationIds") List<Long> publicationIds, Pageable pageable);
 
@@ -38,11 +40,17 @@ public interface BookRepository extends CrudRepository<Book, Long> {
     Page<Book> findByCategory_Ids(
             @Param("categoryIds") List<Long> categoryIds, Pageable pageable);
 
-    @Query("select distinct book from Book book join book.authors author join book.categories category " +
-            "where (book.publication.id in :publicationIds or :publicationIds is null) " +
-            "and (author.id in :authorIds or :authorIds is null) " +
-            "and (category.id in :categoryIds or :categoryIds is null) ")
+    @Query(value = "SELECT * " +
+            " FROM  book" +
+            " INNER JOIN book_author" +
+            " ON book_author.book_id = book.id" +
+            " INNER JOIN book_category" +
+            " ON book_category.book_id = book.id" +
+            " WHERE (COALESCE(:publicationIds, NULL) IS NULL OR publication_id in :publicationIds)" +
+            " AND (COALESCE(:authorIds, NULL) IS NULL OR book_author.author_id in :authorIds)" +
+            " AND(COALESCE(:categoryIds, NULL) IS NULL OR book_category.category_id in :categoryIds)", nativeQuery = true)
     @RestResource(rel = "filter", path = "filter")
-    Page<Book> filter(@Param("publicationIds") List<Long> publicationId,
+    Page<Book> filter(@Param("publicationIds") List<Long> publicationIds,
                       @Param("categoryIds") List<Long> categoryIds, @Param("authorIds") List<Long> authorIds, Pageable pageable);
+
 }

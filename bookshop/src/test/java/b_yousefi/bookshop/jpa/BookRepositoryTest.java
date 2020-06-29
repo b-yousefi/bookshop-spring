@@ -175,6 +175,15 @@ public class BookRepositoryTest extends DataTest {
 
     @Sql("books_filter_data.sql")
     @Test
+    void filter_when_publication() {
+        Pageable sortedByName =
+                PageRequest.of(0, 10, Sort.by("name"));
+
+        assertThat(getBookRepository().filter(List.of(2L, 1L), null, null, sortedByName)).hasSize(4);
+    }
+
+    @Sql("books_filter_data.sql")
+    @Test
     void filter_with_authors_and_publication() {
         Pageable sortedByName =
                 PageRequest.of(0, 10, Sort.by("name"));

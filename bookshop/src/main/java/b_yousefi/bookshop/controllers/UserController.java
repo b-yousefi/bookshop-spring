@@ -2,9 +2,9 @@ package b_yousefi.bookshop.controllers;
 
 import b_yousefi.bookshop.models.User;
 import b_yousefi.bookshop.services.UserRepositoryUserDetailsService;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -22,10 +22,11 @@ public class UserController {
 
     @RequestMapping(value = "/users/{userId}", method = RequestMethod.PATCH)
     @ResponseBody
-    public ResponseEntity<User> saveUser(@PathVariable Long userId, @RequestBody User user) {
+    public EntityModel<?> saveUser(@PathVariable Long userId, @RequestBody User user
+            , PersistentEntityResourceAssembler assembler) {
         user.setId(userId);
         User usr = userDetailsService.save(user);
-        return new ResponseEntity<>(usr, HttpStatus.OK);
+        return assembler.toFullResource(usr);
     }
 
 }

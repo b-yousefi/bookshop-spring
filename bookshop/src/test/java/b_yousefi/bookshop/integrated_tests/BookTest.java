@@ -69,6 +69,15 @@ public class BookTest extends IntegratedTest {
     }
 
     @Test
+    void filter() throws Exception {
+        //check there is one book
+        getMVC().perform(get(getPathTo(BOOKS_PATH_NAME) + "/filter")
+                .param("publicationIds", "1", "2"))
+                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
+    }
+
+
+    @Test
     void getBook_check_links() throws Exception {
         //check there is one book and its id = 1
         String result = getMVC().perform(get(getPathTo(BOOKS_PATH_NAME)))
