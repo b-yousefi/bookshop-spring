@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -32,4 +33,6 @@ public class BookModel extends RepresentationModel<BookModel> {
     private String summary;
     private List<Long> categoryIds;
     private DBFile picture;
+    private BigDecimal price;
+    private int quantity;
 }

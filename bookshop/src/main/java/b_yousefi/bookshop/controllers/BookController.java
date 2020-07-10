@@ -3,7 +3,7 @@ package b_yousefi.bookshop.controllers;
 import b_yousefi.bookshop.jpa.BookRepository;
 import b_yousefi.bookshop.models.Book;
 import b_yousefi.bookshop.models.representations.BookModel;
-import b_yousefi.bookshop.models.representations.BookModelAssembler;
+import b_yousefi.bookshop.models.representations.assemblers.BookModelAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

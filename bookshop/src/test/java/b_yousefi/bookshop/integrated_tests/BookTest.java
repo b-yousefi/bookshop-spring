@@ -72,7 +72,7 @@ public class BookTest extends IntegratedTest {
     void filter() throws Exception {
         //check there is one book
         getMVC().perform(get(getPathTo(BOOKS_PATH_NAME) + "/filter")
-                .param("publicationIds", "1", "2"))
+                .param("publicationIds", "1,2"))
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
     }
 
@@ -94,16 +94,12 @@ public class BookTest extends IntegratedTest {
         getMVC().perform(get(pathToBook))
                 .andExpect(jsonPath("name", is("Pride And Prejudice")));
         getMVC().perform(get(pathToBook))
-                .andDo(print())
-                //check it has a link to its authors
-                .andExpect(jsonPath(getHrefFromLinks(AUTHORS_PATH_NAME),
-                        is(pathToBook + "/" + AUTHORS_PATH_NAME)))
-                //check it has a link to its publication
-                .andExpect(jsonPath(getHrefFromLinks(PUBLICATION_PATH_NAME),
-                        is(pathToBook + "/" + PUBLICATION_PATH_NAME)))
-                //check it has a link to its categories
-                .andExpect(jsonPath(getHrefFromLinks(CATEGORIES_PATH_NAME),
-                        is(pathToBook + "/" + CATEGORIES_PATH_NAME)));
+                //check it has its author ids
+                .andExpect(jsonPath("authorIds", contains(1)))
+                //check it has its publication id
+                .andExpect(jsonPath("publicationId").value(1))
+                //check it has its categories ids
+                .andExpect(jsonPath("categoryIds", contains(2)));
     }
 
     @Test
@@ -168,15 +164,12 @@ public class BookTest extends IntegratedTest {
         getMVC().perform(get(pathCreatedObj))
                 //check the name is as the one posted
                 .andExpect(jsonPath("$.name").value("The Little Prince"))
-                //check it has a link to its authors
-                .andExpect(jsonPath(getHrefFromLinks(AUTHORS_PATH_NAME),
-                        is(pathCreatedObj + "/" + AUTHORS_PATH_NAME)))
-                //check it has a link to its publication
-                .andExpect(jsonPath(getHrefFromLinks(PUBLICATION_PATH_NAME),
-                        is(pathCreatedObj + "/" + PUBLICATION_PATH_NAME)))
-                //check it has a link to its categories
-                .andExpect(jsonPath(getHrefFromLinks(CATEGORIES_PATH_NAME),
-                        is(pathCreatedObj + "/" + CATEGORIES_PATH_NAME)));
+                //check it has its author ids
+                .andExpect(jsonPath("authorIds", contains(1)))
+                //check it has its publication id
+                .andExpect(jsonPath("publicationId").value(1))
+                //check it has its categories ids
+                .andExpect(jsonPath("categoryIds", contains(1)));
         ;
     }
 
@@ -245,6 +238,25 @@ public class BookTest extends IntegratedTest {
         getMVC().perform(get(getPathTo(BOOKS_PATH_NAME)))
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)))
                 .andExpect(jsonPath(JSON_PATH_TO_LIST + "[0].name").value("Sense and Sensibility"));
+    }
+
+    @Test
+    void when_put_Book_with_ROLE_ADMIN_neagtive_quantity_then_get_error() throws Exception {
+        //check there is a book named "Pride And Prejudice" and id = 1
+        getMVC().perform(get(getPathTo(BOOKS_PATH_NAME)))
+                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)))
+                .andExpect(jsonPath(JSON_PATH_TO_LIST + "[0].name").value("Pride And Prejudice"))
+                .andExpect(jsonPath(JSON_PATH_TO_LIST + "[0]._links.self.href", endsWith("1")));
+        //change the book name to "Sense and Sensibility"
+        getMVC().perform(put(getPathTo(BOOKS_PATH_NAME) + "1")
+                .contentType(MediaType.APPLICATION_JSON).content(
+                        "{" +
+                                " \"name\" : \"Sense and Sensibility\" ," +
+                                " \"quantity\" : \"-1\"" +
+                                " }"
+                ).header("Authorization", getAdminToken())
+                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
+                .andExpect(status().isConflict());
     }
 
     @Test

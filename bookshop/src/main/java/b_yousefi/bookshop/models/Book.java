@@ -3,10 +3,8 @@ package b_yousefi.bookshop.models;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,4 +61,15 @@ public class Book {
     @OneToOne(targetEntity = DBFile.class, cascade = ALL)
     @JoinColumn(name = "picture_id", foreignKey = @ForeignKey(name = "FK_PICTURE__BOOK"))
     private DBFile picture;
+
+    @Min(value = 0, message = "Book price cannot be less than zero")
+    private BigDecimal price;
+
+    @Builder.Default
+    @Min(value = 0, message = "Book Quantity cannot be less than zero")
+    private int quantity = 1;
+
+    public void putOrder(int orderedQuantity) {
+        this.quantity -= orderedQuantity;
+    }
 }
