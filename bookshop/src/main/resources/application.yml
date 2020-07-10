@@ -19,6 +19,9 @@ spring:
     url: jdbc:mysql://localhost:3306/db_bookshop
     username: b_yousefi
     password: b_yousefi
+    data: classpath:/META-INF/sql/init-1-dbFiles.sql,classpath:/META-INF/sql/init-2-categories.sql,classpath:/META-INF/sql/init-3-publications.sql,classpath:/META-INF/sql/init-4-authors.sql,classpath:/META-INF/sql/init-5-books.sql
+    initialization-mode:
+    platform: mysql
   jpa:
     hibernate:
       use-new-id-generator-mappings: false
