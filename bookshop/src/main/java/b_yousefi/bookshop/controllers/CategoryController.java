@@ -2,8 +2,8 @@ package b_yousefi.bookshop.controllers;
 
 import b_yousefi.bookshop.jpa.CategoryRepository;
 import b_yousefi.bookshop.models.Category;
-import b_yousefi.bookshop.models.representations.CategoryAssembler;
 import b_yousefi.bookshop.models.representations.CategoryRep;
+import b_yousefi.bookshop.models.representations.assemblers.CategoryAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -37,10 +37,7 @@ public class CategoryController {
     @ResponseBody
     public ResponseEntity<CollectionModel<CategoryRep>> fetchAll() {
         List<Category> categoryList = categoryRepository.findAllByParentCat_Id(null);
-        List<CategoryRep> categories = new ArrayList<>();
-        categoryList.forEach(category -> {
-            categories.add(new CategoryRep(category));
-        });
+        List<CategoryRep> categories = categoryList.stream().map(CategoryRep::new).collect(Collectors.toList());
         CollectionModel<CategoryRep> resourceResponse = new CollectionModel<>(categories);
         resourceResponse.add(linkTo(methodOn(CategoryController.class).fetchAll()).withSelfRel());
         return new ResponseEntity<>(resourceResponse, HttpStatus.OK);

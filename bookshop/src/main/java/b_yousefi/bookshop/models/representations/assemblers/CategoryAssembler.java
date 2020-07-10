@@ -1,7 +1,8 @@
-package b_yousefi.bookshop.models.representations;
+package b_yousefi.bookshop.models.representations.assemblers;
 
 import b_yousefi.bookshop.controllers.CategoryController;
 import b_yousefi.bookshop.models.Category;
+import b_yousefi.bookshop.models.representations.CategoryRep;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;

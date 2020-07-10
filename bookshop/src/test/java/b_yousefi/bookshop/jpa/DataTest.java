@@ -175,6 +175,7 @@ public abstract class DataTest {
                 .authors(authors)
                 .publication(createPublication())
                 .categories(categories)
+                .quantity(3)
                 .build();
         entityManager.persistAndFlush(book);
         return book;
@@ -194,6 +195,7 @@ public abstract class DataTest {
         OrderItem orderItem = OrderItem.builder()
                 .order(createOrder())
                 .book(createBook())
+                .quantity(4)
                 .build();
         entityManager.persistAndFlush(orderItem);
         return orderItem;
