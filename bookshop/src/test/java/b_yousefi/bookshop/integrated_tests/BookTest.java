@@ -10,7 +10,6 @@ import org.springframework.test.context.jdbc.SqlGroup;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -286,7 +285,7 @@ public class BookTest extends IntegratedTest {
                 .andExpect(status().isNoContent());
         //check the book list is empty
         getMVC().perform(get(getPathTo(BOOKS_PATH_NAME)))
-                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(0)));
+                .andExpect(jsonPath(JSON_PATH_TO_LIST).doesNotExist());
     }
 
     @Test

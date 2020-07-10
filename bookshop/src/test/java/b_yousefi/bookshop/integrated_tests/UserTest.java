@@ -1,5 +1,6 @@
 package b_yousefi.bookshop.integrated_tests;
 
+import b_yousefi.bookshop.models.OrderStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
@@ -8,6 +9,7 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -28,7 +30,9 @@ public class UserTest extends IntegratedTest {
                         ", \"lastName\" : \"Yousefi\" " +
                         ", \"email\" : \"b.yousefi2912@gmail.com\" " +
                         "}"))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                //check that an order with status "open" is created while registering
+                .andExpect(jsonPath("$.openOrder.currentStatus.status").value(OrderStatus.OPEN.name()));
     }
 
     @Test
@@ -213,6 +217,7 @@ public class UserTest extends IntegratedTest {
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andDo(print())
                 .andExpect(status().isOk());
 
         //check that phone number has successfully been updated

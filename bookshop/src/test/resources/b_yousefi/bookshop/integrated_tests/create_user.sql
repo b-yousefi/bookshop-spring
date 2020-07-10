@@ -16,7 +16,7 @@ VALUES (1,
         '989352229966',
         'admin',
         null,
-        'ADMIN');
+        'ROLE_ADMIN');
 INSERT INTO user
 (id,
  first_name,

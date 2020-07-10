@@ -3,6 +3,8 @@ package b_yousefi.bookshop.controllers;
 import b_yousefi.bookshop.models.JwtRequest;
 import b_yousefi.bookshop.models.JwtResponse;
 import b_yousefi.bookshop.models.User;
+import b_yousefi.bookshop.models.representations.UserModel;
+import b_yousefi.bookshop.models.representations.assemblers.UserModelAssembler;
 import b_yousefi.bookshop.security.JwtTokenUtil;
 import b_yousefi.bookshop.security.TokenAuthenticationException;
 import b_yousefi.bookshop.services.UserRepositoryUserDetailsService;
@@ -30,6 +32,8 @@ public class JwtAuthenticationController {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private UserRepositoryUserDetailsService userDetailsService;
+    @Autowired
+    private UserModelAssembler userModelAssembler;
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -51,9 +55,9 @@ public class JwtAuthenticationController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.CREATED)
-    public User saveUser(@RequestBody User user) {
-        return userDetailsService.save(user);
+    public ResponseEntity<UserModel> saveUser(@RequestBody User user) {
+        User createdUser = userDetailsService.save(user);
+        return new ResponseEntity<>(userModelAssembler.toModel(createdUser), HttpStatus.CREATED);
     }
 
 }

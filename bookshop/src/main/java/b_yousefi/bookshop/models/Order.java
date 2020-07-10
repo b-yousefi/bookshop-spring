@@ -1,13 +1,12 @@
 package b_yousefi.bookshop.models;
 
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 
 /**
@@ -20,6 +19,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
+@ToString(exclude = {"orderStatusRecords", "orderItems"})
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,15 +30,28 @@ public class Order {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER__ORDER"))
     private User user;
 
-    @NotNull(message = "Every order must have an address")
+    //    @NotNull(message = "Every order must have an address")
     @ManyToOne(targetEntity = Address.class)
     @JoinColumn(name = "address_id", foreignKey = @ForeignKey(name = "FK_ADDRESS__ORDER"))
     private Address address;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @CreationTimestamp
-    private Date placedAt;
+    @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "order", orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<OrderStatusRecord> orderStatusRecords = new ArrayList<>();
 
-    @UpdateTimestamp
-    private Date updatedAt;
+    @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "order", orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<OrderItem> orderItems = new ArrayList<>();
+
+    public OrderStatusRecord getCurrentStatus() {
+        return orderStatusRecords
+                .stream()
+                .max(Comparator.comparing(OrderStatusRecord::getUpdatedAt))
+                .orElse(null);
+    }
+
+    public List<OrderStatusRecord> getSortedOrderStatusRecords() {
+        orderStatusRecords.sort(Comparator.comparing(OrderStatusRecord::getUpdatedAt, Comparator.reverseOrder()));
+        return orderStatusRecords;
+    }
 }

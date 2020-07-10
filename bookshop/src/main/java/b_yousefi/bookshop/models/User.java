@@ -23,7 +23,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-@ToString(exclude = "addresses")
+@ToString(exclude = {"addresses", "orders"})
 @Table(uniqueConstraints = {
         @UniqueConstraint(name = "UK_USER_username", columnNames = {"username"}),
         @UniqueConstraint(name = "UK_USER_email", columnNames = {"email"}),
@@ -66,6 +66,10 @@ public class User implements UserDetails {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Address> addresses = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Order> orders = new ArrayList<>();
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -94,5 +98,41 @@ public class User implements UserDetails {
 
     public boolean isAdmin() {
         return getRole().equals("ROLE_ADMIN");
+    }
+
+    @PrePersist
+    private void createOpenOrder() {
+        Order order = Order.builder()
+                .user(this)
+                .build();
+        OrderStatusRecord orderStatusRecord = OrderStatusRecord.builder()
+                .order(order)
+                .status(OrderStatus.OPEN)
+                .build();
+        order.setOrderStatusRecords(List.of(orderStatusRecord));
+        this.orders.add(order);
+    }
+
+    public void updateStatus(Order order, OrderStatusRecord toOrderStatusRecord) {
+        OrderStatus toOrderStatus = toOrderStatusRecord.getStatus();
+        if (toOrderStatus.equals(OrderStatus.OPEN)
+                && !order.getCurrentStatus().getStatus().equals(OrderStatus.OPEN)) {
+            Order openOrder = this.orders
+                    .stream()
+                    .filter(ord -> ord.getCurrentStatus().getStatus().equals(OrderStatus.OPEN))
+                    .findFirst().orElse(null);
+            assert openOrder != null;
+            if (openOrder.getOrderItems().size() > 0) {
+                openOrder.getOrderStatusRecords()
+                        .add(
+                                OrderStatusRecord.builder().status(OrderStatus.FUTURE).order(openOrder).build()
+                        );
+            } else {
+                this.orders.remove(openOrder);
+            }
+        } else if (!toOrderStatus.equals(OrderStatus.OPEN)
+                && order.getCurrentStatus().getStatus().equals(OrderStatus.OPEN)) {
+            this.createOpenOrder();
+        }
     }
 }

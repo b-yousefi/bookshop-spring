@@ -195,7 +195,7 @@ public abstract class DataTest {
         OrderItem orderItem = OrderItem.builder()
                 .order(createOrder())
                 .book(createBook())
-                .quantity(4)
+                .quantity(2)
                 .build();
         entityManager.persistAndFlush(orderItem);
         return orderItem;

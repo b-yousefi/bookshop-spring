@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -234,6 +235,13 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleAll(final Exception ex, final WebRequest request) {
         logger.info(ex.getClass().getName());
         //
+        if (ex instanceof TransactionSystemException) {
+            if (((TransactionSystemException) ex).getMostSpecificCause() instanceof ConstraintViolationException) {
+                ConstraintViolationException constraintViolationException = (ConstraintViolationException) ((TransactionSystemException) ex).getMostSpecificCause();
+                return handleConstraintViolation(constraintViolationException, request);
+            }
+        }
+
         ErrorCause errorCause = new ErrorCause(null, ex.getMessage());
         final ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage(), errorCause);
         return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());

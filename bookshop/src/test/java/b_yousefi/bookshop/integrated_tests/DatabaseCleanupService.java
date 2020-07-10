@@ -17,7 +17,7 @@ import java.util.Set;
 public class DatabaseCleanupService {
     @Autowired
     private EntityManager entityManager;
-    private Set<String> tableNames = Set.of("user", "author", "address", "order_table", "order_item",
+    private Set<String> tableNames = Set.of("user", "author", "address", "order_table", "order_item", "order_status",
             "book", "publication", "category", "book_author", "book_category", "dbfile");
 
     @Transactional

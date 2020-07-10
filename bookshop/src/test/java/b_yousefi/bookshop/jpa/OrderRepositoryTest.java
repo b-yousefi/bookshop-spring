@@ -24,21 +24,14 @@ public class OrderRepositoryTest extends DataTest {
 
     @Test
     public void findAllByUser_username() {
-        Pageable sortedByPlacedAt =
-                PageRequest.of(0, 3, Sort.by("placedAt"));
-        assertThat(getOrderRepository().findAllByUser_username(order.getUser().getUsername(), sortedByPlacedAt)).hasSize(1);
-    }
-
-    @Test
-    public void findAllByUser_UsernameAndPlacedAt() {
-        Pageable sortedByUser =
-                PageRequest.of(0, 3, Sort.by("user_Id"));
-        assertThat(getOrderRepository().findAllByUser_UsernameAndPlacedAt(order.getUser().getUsername(), order.getPlacedAt(), sortedByUser)).hasSize(1);
+        Pageable sortedById =
+                PageRequest.of(0, 3, Sort.by("id"));
+        assertThat(getOrderRepository().findAllByUser_username(order.getUser().getUsername(), sortedById)).hasSize(2);
     }
 
     @Test
     void countByUser_Id() {
-        assertThat(getOrderRepository().countByUser_Username(order.getUser().getUsername())).isEqualTo(1);
+        assertThat(getOrderRepository().countByUser_Username(order.getUser().getUsername())).isEqualTo(2);
     }
 
 }

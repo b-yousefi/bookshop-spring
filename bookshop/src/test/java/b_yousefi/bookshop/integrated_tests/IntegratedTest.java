@@ -38,6 +38,7 @@ public abstract class IntegratedTest {
     protected static final String ADDRESSES_PATH_NAME = "addresses";
     protected static final String ORDERS_PATH_NAME = "orders";
     protected static final String ORDER_ITEMS_PATH_NAME = "order_items";
+    protected static final String ORDER_STATUSES_PATH_NAME = "order_statuses";
 
     protected static final String BOOK_PATH_NAME = "book";
     protected static final String CATEGORY_PATH_NAME = "category";

@@ -181,6 +181,12 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
 
+        //quantity of book is 1
+        getMVC().perform(get(pathToBook2)
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("quantity").value(1));
+
         //add an order item to current user order with id = 1
         String pathCreatedObj = getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
@@ -204,6 +210,12 @@ public class OrderItemTest extends IntegratedTest {
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isOk());
 
+        //after putting the order quantity of book changes from 1 to 0
+        getMVC().perform(get(pathToBook2)
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("quantity").value(0));
+
         //post order to another user gets error
         getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
@@ -213,6 +225,33 @@ public class OrderItemTest extends IntegratedTest {
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void when_order_quantity_is_greater_than_book_quantity_get_error() throws Exception {
+        //there is 1 order item for this user
+        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
+
+        //quantity of book is 1
+        getMVC().perform(get(pathToBook2)
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("quantity").value(1));
+
+        //add an order item to current user order with id = 1
+        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
+                .contentType(MediaType.APPLICATION_JSON).content("{"
+                        + "\"order\" : \"" + pathToOrder + "\" ,"
+                        + "\"book\" : \"" + pathToBook2 + "\"  ,"
+                        + "\"quantity\" :   2 " +
+                        "}")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isConflict());
     }
 
     @Test

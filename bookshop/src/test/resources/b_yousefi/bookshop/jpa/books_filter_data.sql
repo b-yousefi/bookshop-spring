@@ -91,13 +91,15 @@ INSERT INTO book
  name,
  published_day,
  summary,
- publication_id)
+ publication_id,
+ quantity)
 VALUES (1,
         '0192802380',
         'book1',
         null,
         null,
-        1);
+        1,
+        3);
 --------------------------------------------
 INSERT INTO book_category
 (book_id,
@@ -123,13 +125,15 @@ INSERT INTO book
  name,
  published_day,
  summary,
- publication_id)
+ publication_id,
+ quantity)
 VALUES (2,
         '0292802380',
         'book2',
         null,
         null,
-        1);
+        1,
+        4);
 --------------------------------------------
 INSERT INTO book_category
 (book_id,
@@ -155,13 +159,15 @@ INSERT INTO book
  name,
  published_day,
  summary,
- publication_id)
+ publication_id,
+ quantity)
 VALUES (3,
         '0292802380',
         'book3',
         null,
         null,
-        2);
+        2,
+        5);
 --------------------------------------------
 INSERT INTO book_category
 (book_id,
@@ -187,13 +193,15 @@ INSERT INTO book
  name,
  published_day,
  summary,
- publication_id)
+ publication_id,
+ quantity)
 VALUES (4,
         '0292802380',
         'book4',
         null,
         null,
-        2);
+        2,
+        6);
 --------------------------------------------
 INSERT INTO book_category
 (book_id,

@@ -74,13 +74,6 @@ public class OrderTest extends IntegratedTest {
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER"))
                 .param("username", getUser().getUsername()))
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(3)));
-        //myOrdersRegisteredAtDate
-        getMVC().perform(get(getSearchPathTo(ORDERS_PATH_NAME) + "myOrdersRegisteredAtDate")
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER"))
-                .param("username", getUser().getUsername())
-                .param("orderDate", "2020-05-18"))
-                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(2)));
 
         //user with role USER cannot perform get on orders path to get other users orders
         getMVC().perform(get(getPathTo(ORDERS_PATH_NAME) + 1)
@@ -105,13 +98,6 @@ public class OrderTest extends IntegratedTest {
                 .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN"))
                 .param("username", getAdmin().getUsername()))
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
-        //myOrdersRegisteredAtDate
-        getMVC().perform(get(getSearchPathTo(ORDERS_PATH_NAME) + "myOrdersRegisteredAtDate")
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN"))
-                .param("username", getAdmin().getUsername())
-                .param("orderDate", "2020-05-22"))
-                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
     }
 
     @Test
@@ -131,25 +117,6 @@ public class OrderTest extends IntegratedTest {
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isInternalServerError());
-    }
-
-    @Test
-    void when_post_order_without_address_gets_error() throws Exception {
-        //there are 3 orders for this user
-        getMVC().perform(get(getPathTo(ORDERS_PATH_NAME))
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(3)));
-
-        //cannot add order without user field
-        getMVC().perform(post(getPathTo(ORDERS_PATH_NAME))
-                .contentType(MediaType.APPLICATION_JSON).content("{"
-                        + "\"user\" : \"" + getPathToUser() + "\" " +
-                        "}")
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isConflict());
     }
 
     @Test
