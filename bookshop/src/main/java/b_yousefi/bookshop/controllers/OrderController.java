@@ -5,6 +5,8 @@ import b_yousefi.bookshop.jpa.OrderRepository;
 import b_yousefi.bookshop.jpa.OrderStatusRecordRepository;
 import b_yousefi.bookshop.jpa.UserRepository;
 import b_yousefi.bookshop.models.Order;
+import b_yousefi.bookshop.models.OrderItem;
+import b_yousefi.bookshop.models.OrderStatus;
 import b_yousefi.bookshop.models.User;
 import b_yousefi.bookshop.models.representations.OrderDetailedModel;
 import b_yousefi.bookshop.models.representations.OrderItemModel;
@@ -21,16 +23,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by: b.yousefi
@@ -107,6 +111,77 @@ public class OrderController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
+    @RequestMapping(value = "/order_items/add_book_to_shopping_cart", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<OrderItemModel> addBookToShoppingCart(@RequestBody EntityModel<OrderItem> orderItemModel)
+            throws Exception {
+        OrderItem orderItem = orderItemModel.getContent();
+
+        if (orderItem != null) {
+            if (orderItem.getOrder() == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            if (orderItem.getOrder().getCurrentStatus().getStatus().equals(OrderStatus.OPEN)) {
+                if (orderItem.getId() != null) {
+                    Optional<OrderItem> orderItemPrev = orderItemRepository.findById(orderItem.getId());
+                    if (orderItemPrev.isPresent()) {
+                        int addedCount = orderItem.getQuantity();
+                        orderItem.setQuantity(orderItemPrev.get().getQuantity() + addedCount);
+                        OrderItem orderItem_ = orderItemRepository.save(orderItem);
+                        orderItem.getBook().putOrder(addedCount);
+                        orderRepository.save(orderItem.getOrder());
+                        return new ResponseEntity<>(orderItemModelAssembler.toModel(orderItem_), HttpStatus.OK);
+                    } else {
+                        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                    }
+                } else {
+                    OrderItem orderItem_ = orderItemRepository.save(orderItem);
+                    orderItem.getBook().putOrder(orderItem_.getQuantity());
+                    orderRepository.save(orderItem.getOrder());
+                    String selfLink = orderItemModelAssembler.toModel(orderItem_).getLink("self").map(Link::getHref).orElse("");
+                    return ResponseEntity.created(new URI(selfLink)).body(orderItemModelAssembler.toModel(orderItem_));
+                }
+            } else {
+                throw new Exception("Order is not OPEN");
+            }
+
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @RequestMapping(value = "/order_items/remove_book_from_shopping_cart", method = RequestMethod.POST)
+    public ResponseEntity<OrderItemModel> removeBookFromShoppingCart(@RequestBody EntityModel<OrderItem> orderItemModel) throws Exception {
+        OrderItem orderItem = orderItemModel.getContent();
+        if (orderItem != null) {
+            if (orderItem.getOrder() == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            if (orderItem.getOrder().getCurrentStatus().getStatus().equals(OrderStatus.OPEN)) {
+                Optional<OrderItem> orderItemPrev = orderItemRepository.findById(orderItem.getId());
+                if (orderItemPrev.isPresent()) {
+                    int removedCount = orderItem.getQuantity();
+                    orderItem.setQuantity(orderItemPrev.get().getQuantity() - removedCount);
+                    if (orderItem.getQuantity() == 0) {
+                        orderItemRepository.delete(orderItem);
+                        orderItem.getBook().putOrder(-removedCount);
+                        orderRepository.save(orderItem.getOrder());
+                        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                    } else {
+                        OrderItem orderItem_ = orderItemRepository.save(orderItem);
+                        orderItem.getBook().putOrder(-removedCount);
+                        orderRepository.save(orderItem.getOrder());
+                        return new ResponseEntity<>(orderItemModelAssembler.toModel(orderItem_), HttpStatus.OK);
+                    }
+                }
+            } else {
+                throw new Exception("Order is not OPEN");
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
     @RequestMapping(value = "/order_statuses/{id}", method = RequestMethod.GET)
     public ResponseEntity<OrderStatusModel> getOrderStatusById(@PathVariable("id") Long id) {
         return orderStatusRepository.findById(id)
@@ -118,6 +193,6 @@ public class OrderController {
     private User getUser() {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByUsername(authentication.getName());
+        return userRepository.findByUsername(authentication.getName()).orElse(null);
     }
 }

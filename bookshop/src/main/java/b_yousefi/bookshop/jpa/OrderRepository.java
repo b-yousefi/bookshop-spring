@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.Optional;
  * Created by: b.yousefi
  * Date: 5/10/2020
  */
+@CrossOrigin(origins = {"http://localhost:3000"})
 public interface OrderRepository extends CrudRepository<Order, Long> {
     @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
     @Override
@@ -36,6 +38,9 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
     //    @Query(value = "SELECT distinct * FROM Book ord WHERE ord.user.id = :userId ")
     @Query("select ord from Order ord inner join ord.orderStatusRecords st_records WHERE ord.user.id = :userId and st_records.status= :orderStatus")
     List<Order> findOrderWithStatus(@Param("userId") Long userId, @Param("orderStatus") OrderStatus orderStatus);
+
+    @Query("select ord from Order ord inner join ord.orderStatusRecords st_records WHERE ord.user.username = :username and st_records.status= :orderStatus")
+    List<Order> findOrderWithStatusAndUserName(@Param("username") String username, @Param("orderStatus") OrderStatus orderStatus);
 
     @RestResource(path = "myOrders", rel = "myOrders")
     @PreAuthorize("isAuthenticated() && (#username == principal.username)")

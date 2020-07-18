@@ -93,6 +93,14 @@ public class UserTest extends IntegratedTest {
                 .andExpect(jsonPath("$.username").value(getUser().getUsername()))
                 .andExpect(jsonPath("$._links.self.href", endsWith("2")));
 
+        //get shopping cart for user with id = 2, with its own credential
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + "get_shopping_cart")
+                .param("username", "user_test1")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("$.currentStatus.status").value(OrderStatus.OPEN.name()))
+                .andExpect(jsonPath("$._links.self.href", endsWith("2")));
+
         //user with role USER cannot get other users information
         getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 1)
                 .header("Authorization", getUserToken())
@@ -217,13 +225,13 @@ public class UserTest extends IntegratedTest {
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andDo(print())
                 .andExpect(status().isOk());
 
         //check that phone number has successfully been updated
         getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 2)
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andDo(print())
                 .andExpect(jsonPath("$.username").value("user_test1"))
                 .andExpect(jsonPath("$.phoneNumber").value("989352229988"));
     }
@@ -255,7 +263,7 @@ public class UserTest extends IntegratedTest {
         getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 2)
                 .header("Authorization", getAdminToken())
                 .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(jsonPath("$.username").value("username1"));
+                .andExpect(jsonPath("$.email").value("b.yousefi2912@gmail.com"));
     }
 
     @Test

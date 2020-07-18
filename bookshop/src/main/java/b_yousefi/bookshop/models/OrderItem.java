@@ -34,11 +34,4 @@ public class OrderItem {
     @ManyToOne(targetEntity = Order.class)
     @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "FK_ORDER__ORDER_ITEM"))
     private Order order;
-
-    @PrePersist
-    @PreUpdate
-    public void updateBookQuantity() {
-        if (book != null)
-            book.putOrder(quantity);
-    }
 }

@@ -17,6 +17,27 @@ VALUES (1,
         'admin',
         null,
         'ROLE_ADMIN');
+-----------------------------------------------
+INSERT INTO order_table
+(id,
+ address_id,
+ user_id)
+VALUES (1,
+        null,
+        1);
+-----------------------------------------------
+INSERT INTO order_status
+(id,
+ order_id,
+ status,
+ message,
+ updated_at)
+VALUES (1,
+        1,
+        0,
+        'open order',
+        '2020-05-19');
+-----------------------------------------------
 INSERT INTO user
 (id,
  first_name,
@@ -36,3 +57,24 @@ VALUES (2,
         'user_test1',
         null,
         'ROLE_USER');
+-----------------------------------------------
+INSERT INTO order_table
+(id,
+ address_id,
+ user_id)
+VALUES (2,
+        null,
+        2);
+-----------------------------------------------
+INSERT INTO order_status
+(id,
+ order_id,
+ status,
+ message,
+ updated_at)
+VALUES (2,
+        2,
+        0,
+        'open order',
+        '2020-05-19');
+-----------------------------------------------

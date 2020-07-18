@@ -35,7 +35,7 @@ public class OrderDetailedModelAssembler extends OrderModelAssembler {
 
         orderDetailedModel.add(fixLinkSelf(
                 methodOn(OrderController.class)
-                        .getOrderItemById(entity.getId()))
+                        .getOrderById(entity.getId()))
                 .withSelfRel());
 
         orderDetailedModel.setOrderItems(

@@ -25,7 +25,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
     Iterable<User> findAll();
 
     @RestResource(exported = false)
-    User findByUsername(@Param("username") String username);
+    Optional<User> findByUsername(@Param("username") String username);
 
     @PreAuthorize("hasRole('ADMIN') || (isAuthenticated() && (#username == principal.username)) ")
     @Query("select user from User user where  :username = user.username ")

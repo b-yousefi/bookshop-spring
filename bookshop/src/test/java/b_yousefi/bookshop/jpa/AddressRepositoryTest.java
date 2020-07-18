@@ -16,10 +16,10 @@ class AddressRepositoryTest extends DataTest {
     private Address address;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         address = createAddress();
         getEntityManager().clear();
-        user = getUserRepository().findByUsername(address.getUser().getUsername());
+        user = getUserRepository().findByUsername(address.getUser().getUsername()).orElseThrow(Exception::new);
         address = getAddressRepository().findAll().iterator().next();
     }
 
@@ -54,7 +54,7 @@ class AddressRepositoryTest extends DataTest {
     public void whenUserIsRemovedItsAddressesRemoved() {
         getEntityManager().remove(user);
         getEntityManager().flush();
-        assertThat(getUserRepository().findByUsername(user.getUsername())).isNull();
+        assertThat(getUserRepository().findByUsername(user.getUsername())).isNotPresent();
         Pageable sortedByZipCode =
                 PageRequest.of(0, 3, Sort.by("zipCode"));
 

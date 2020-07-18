@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class OrderItemTest extends IntegratedTest {
     private static String JSON_PATH_TO_LIST = "$._embedded." + ORDER_ITEMS_PATH_NAME;
     private String pathToOrder, pathToBook2, pathToBook1, pathToOrderAdmin;
+    private String add_book_to_shopping_cart = ORDER_ITEMS_PATH_NAME + "/add_book_to_shopping_cart";
 
     @BeforeEach
     private void setPaths() throws Exception {
@@ -116,7 +117,7 @@ public class OrderItemTest extends IntegratedTest {
     }
 
     @Test
-    void when_post_order_item_without_order_id_gets_error() throws Exception {
+    void when_add_book_to_shopping_cart_without_order_id_gets_error() throws Exception {
         //there are 1 order item for this user
         getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
                 .header("Authorization", getUserToken())
@@ -125,17 +126,17 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
 
         //cannot add order without order field
-        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
+        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
-                        + "\"book\" : \"" + pathToBook2 + "\"" +
+                        + "\"book\" : \"" + pathToBook1 + "\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void when_post_order_without_book_id_gets_error() throws Exception {
+    void when_add_book_to_shopping_cart_without_book_id_gets_error() throws Exception {
         //there is 1 order item for this user
         getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
                 .header("Authorization", getUserToken())
@@ -143,8 +144,8 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
 
-        //cannot add order without user field
-        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
+        //cannot add order item without book field
+        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
                         + "\"order\" : \"" + pathToOrder + "\" " +
                         "}")
@@ -162,7 +163,7 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(status().isOk());
 
         //add an order item to current user order with id = 1
-        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
+        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
                         + "\"order\" : \"" + pathToOrder + "\" ,"
                         + "\"book\" : \"" + pathToBook1 + "\"" +
@@ -173,7 +174,7 @@ public class OrderItemTest extends IntegratedTest {
     }
 
     @Test
-    void when_user_with_role_USER_then_can_post_its_own_order_item() throws Exception {
+    void when_order_quantity_is_greater_than_book_quantity_get_error() throws Exception {
         //there is 1 order item for this user
         getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
                 .header("Authorization", getUserToken())
@@ -188,7 +189,146 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath("quantity").value(1));
 
         //add an order item to current user order with id = 1
-        String pathCreatedObj = getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
+        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
+                .contentType(MediaType.APPLICATION_JSON).content("{"
+                        + "\"order\" : \"" + pathToOrder + "\" ,"
+                        + "\"book\" : \"" + pathToBook2 + "\" ,"
+                        + "\"quantity\" :   2 " +
+                        "}")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void when_user_is_anonymous_then_post_is_Unauthorized() throws Exception {
+        //anonymous user cannot perform post
+        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
+                .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void when_user_is_anonymous_then_patch_is_Unauthorized() throws Exception {
+        //anonymous user cannot perform patch
+        getMVC().perform(patch(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
+                .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void when_user_is_anonymous_then_put_is_Unauthorized() throws Exception {
+        //anonymous user cannot perform put
+        getMVC().perform(put(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
+                .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void direct_put_is_forbidden_for_user_and_admin() throws Exception {
+        getMVC().perform(put(getPathTo(ORDER_ITEMS_PATH_NAME) + 1)
+                .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "\"order\" : \"" + pathToOrder + "\" ," +
+                        "\"book\" : \"" + pathToBook1 + "\" ," +
+                        "\"quantity\" : \"" + 2 + "\"" +
+                        "}")
+                .header("Authorization", getAdminToken())
+                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
+                .andExpect(status().isForbidden());
+
+        getMVC().perform(put(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
+                .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "\"order\" : \"" + pathToOrder + "\" ," +
+                        "\"book\" : \"" + pathToBook1 + "\" ," +
+                        "\"quantity\" : \"" + 2 + "\"" +
+                        "}")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void direct_patch_is_forbidden_for_user_and_admin() throws Exception {
+        getMVC().perform(patch(getPathTo(ORDER_ITEMS_PATH_NAME) + 1)
+                .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "\"order\" : \"" + pathToOrder + "\" ," +
+                        "\"book\" : \"" + pathToBook1 + "\" ," +
+                        "\"quantity\" : \"" + 2 + "\"" +
+                        "}")
+                .header("Authorization", getAdminToken())
+                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
+                .andExpect(status().isForbidden());
+
+        getMVC().perform(patch(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
+                .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "\"order\" : \"" + pathToOrder + "\" ," +
+                        "\"book\" : \"" + pathToBook1 + "\" ," +
+                        "\"quantity\" : \"" + 2 + "\"" +
+                        "}")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void direct_post_is_forbidden_for_user_and_admin() throws Exception {
+        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
+                .contentType(MediaType.APPLICATION_JSON).content("{"
+                        + "\"order\" : \"" + pathToOrder + "\" ,"
+                        + "\"book\" : \"" + pathToBook2 + "\"" +
+                        "}")
+                .header("Authorization", getAdminToken())
+                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
+                .andExpect(status().isForbidden());
+
+        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
+                .contentType(MediaType.APPLICATION_JSON).content("{"
+                        + "\"order\" : \"" + pathToOrder + "\" ,"
+                        + "\"book\" : \"" + pathToBook2 + "\"" +
+                        "}")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void direct_delete_is_forbidden_for_user_and_admin() throws Exception {
+        getMVC().perform(delete(getPathTo(ORDER_ITEMS_PATH_NAME) + 1)
+                .header("Authorization", getAdminToken())
+                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
+                .andExpect(status().isForbidden());
+
+        getMVC().perform(delete(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void when_user_is_anonymous_then_delete_is_Unauthorized() throws Exception {
+        //anonymous user cannot perform delete
+        getMVC().perform(delete(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
+                .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void user_can_add_order_item_to_its_own_shopping_cart_for_user() throws Exception {
+        //there is 1 order item for this user
+        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
+
+        //quantity of book is 1
+        getMVC().perform(get(pathToBook2)
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("quantity").value(1));
+
+        //add an order item to current user order with id = 1
+        String pathCreatedObj = getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
                         + "\"order\" : \"" + pathToOrder + "\" ,"
                         + "\"book\" : \"" + pathToBook2 + "\"" +
@@ -217,7 +357,7 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath("quantity").value(0));
 
         //post order to another user gets error
-        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
+        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
                         + "\"order\" : \"" + pathToOrderAdmin + "\" ,"
                         + "\"book\" : \"" + pathToBook2 + "\"" +
@@ -228,7 +368,8 @@ public class OrderItemTest extends IntegratedTest {
     }
 
     @Test
-    void when_order_quantity_is_greater_than_book_quantity_get_error() throws Exception {
+    void user_can_remove_order_item_from_its_own_shopping_cart_for_user() throws Exception {
+        String remove_book_from_shopping_cart = ORDER_ITEMS_PATH_NAME + "/remove_book_from_shopping_cart";
         //there is 1 order item for this user
         getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
                 .header("Authorization", getUserToken())
@@ -236,258 +377,47 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
 
-        //quantity of book is 1
-        getMVC().perform(get(pathToBook2)
+        //quantity of book is 3
+        getMVC().perform(get(pathToBook1)
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(jsonPath("quantity").value(1));
+                .andExpect(jsonPath("quantity").value(3));
 
         //add an order item to current user order with id = 1
-        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
-                .contentType(MediaType.APPLICATION_JSON).content("{"
-                        + "\"order\" : \"" + pathToOrder + "\" ,"
-                        + "\"book\" : \"" + pathToBook2 + "\"  ,"
-                        + "\"quantity\" :   2 " +
-                        "}")
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isConflict());
-    }
-
-    @Test
-    void when_user_with_role_ADMIN_then_can_post_any_user_order_item() throws Exception {
-        //there are 2 order items
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(2)));
-
-        //add an order item to any user
-        String pathCreatedObj = getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
-                .contentType(MediaType.APPLICATION_JSON).content("{"
-                        + "\"order\" : \"" + pathToOrder + "\" ,"
-                        + "\"book\" : \"" + pathToBook2 + "\"" +
-                        "}")
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getRedirectedUrl();
-
-        //check that order item is added
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(3)));
-        assert pathCreatedObj != null;
-        getMVC().perform(get(pathCreatedObj)
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void when_user_is_anonymous_then_post_is_Unauthorized() throws Exception {
-        //anonymous user cannot perform post
-        getMVC().perform(post(getPathTo(ORDER_ITEMS_PATH_NAME))
-                .contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void when_user_with_role_USER_then_can_patch_its_own_order_item() throws Exception {
-        //check there an order item with id =2, and quantity = 1
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.quantity").value("1"));
-
-        //patch order to current user quantity
-        getMVC().perform(patch(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
+        getMVC().perform(post(getPathTo(remove_book_from_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "\"id\" : \"" + 2 + "\" ," +
                         "\"order\" : \"" + pathToOrder + "\" ," +
                         "\"book\" : \"" + pathToBook1 + "\" ," +
-                        "\"quantity\" : \"" + 2 + "\"" +
+                        "\"quantity\" : \"" + 1 + "\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isNoContent());
 
-        //patch order to another user gets FORBIDDEN
-        getMVC().perform(patch(getPathTo(ORDER_ITEMS_PATH_NAME) + 1)
-                .contentType(MediaType.APPLICATION_JSON).content("{" +
-                        "\"order\" : \"" + pathToOrder + "\" ," +
-                        "\"book\" : \"" + pathToBook1 + "\" ," +
-                        "\"quantity\" : \"" + 2 + "\"" +
-                        "}")
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void when_user_with_role_ADMIN_then_can_patch_any_user_order_item() throws Exception {
-        //check there an order item with id =2, and quantity = 1
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.quantity").value("1"));
-
-        //patch order to any user
-        getMVC().perform(patch(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .contentType(MediaType.APPLICATION_JSON).content("{" +
-                        "\"order\" : \"" + pathToOrder + "\" ," +
-                        "\"book\" : \"" + pathToBook1 + "\" ," +
-                        "\"quantity\" : \"" + 2 + "\"" +
-                        "}")
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isNoContent());
-
-    }
-
-    @Test
-    void when_user_is_anonymous_then_patch_is_Unauthorized() throws Exception {
-        //anonymous user cannot perform patch
-        getMVC().perform(patch(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void when_user_with_role_USER_then_can_put_its_own_order_item() throws Exception {
-        //check there an order item with id =2, and quantity = 1
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.quantity").value("1"));
-
-        //put order item to current user, change the quantity
-        getMVC().perform(put(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .contentType(MediaType.APPLICATION_JSON).content("{" +
-                        "\"order\" : \"" + pathToOrder + "\" ," +
-                        "\"book\" : \"" + pathToBook1 + "\" ," +
-                        "\"quantity\" : \"" + 2 + "\"" +
-                        "}")
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isNoContent());
-
-        //check the data has changed
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.quantity").value("2"));
-
-        //put order item to another user gets FORBIDDEN
-        getMVC().perform(put(getPathTo(ORDER_ITEMS_PATH_NAME) + 1)
-                .contentType(MediaType.APPLICATION_JSON).content("{" +
-                        "\"order\" : \"" + pathToOrder + "\" ," +
-                        "\"book\" : \"" + pathToBook1 + "\" ," +
-                        "\"quantity\" : \"" + 2 + "\"" +
-                        "}")
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void when_user_with_role_ADMIN_then_can_put_any_user_order_item() throws Exception {
-        //check there an order item with id =2, and quantity = 1
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.quantity").value("1"));
-
-        //put order item to any user, change the quantity
-        getMVC().perform(put(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .contentType(MediaType.APPLICATION_JSON).content("{" +
-                        "\"order\" : \"" + pathToOrder + "\" ," +
-                        "\"book\" : \"" + pathToBook1 + "\" ," +
-                        "\"quantity\" : \"" + 2 + "\"" +
-                        "}")
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isNoContent());
-
-        //check the data has changed
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.quantity").value("2"));
-    }
-
-    @Test
-    void when_user_is_anonymous_then_put_is_Unauthorized() throws Exception {
-        //anonymous user cannot perform put
-        getMVC().perform(put(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void when_user_with_role_USER_then_can_delete_its_own_order_item() throws Exception {
-        //user has 1 order item
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
-
-        //delete order item from current user
-        getMVC().perform(delete(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isNoContent());
-        //delete order from item other users gets Forbidden
-        getMVC().perform(delete(getPathTo(ORDER_ITEMS_PATH_NAME) + 1)
-                .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isForbidden());
-
-        //check user has 0 order item
+        //check that order item is removed
         getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(0)));
-    }
 
-    @Test
-    void when_user_with_role_ADMIN_then_can_delete_any_user_order_item() throws Exception {
-        //there are 2 order items
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(2)));
+        //after putting the order quantity of book changes from 3 to 4
+        getMVC().perform(get(pathToBook1)
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("quantity").value(4));
 
-        //delete order item from user
-        getMVC().perform(delete(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isNoContent());
-        //there are 1 order item
-        getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
-                .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
-
-    }
-
-    @Test
-    void when_user_is_anonymous_then_delete_is_Unauthorized() throws Exception {
-        //anonymous user cannot perform delete
-        getMVC().perform(delete(getPathTo(ORDER_ITEMS_PATH_NAME) + 2)
-                .contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andExpect(status().isUnauthorized());
+        //post order to another user gets error
+        getMVC().perform(post(getPathTo(remove_book_from_shopping_cart))
+                .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "\"id\" : \"" + 1 + "\" ," +
+                        "\"order\" : \"" + pathToOrder + "\" ," +
+                        "\"book\" : \"" + pathToBook1 + "\" ," +
+                        "\"quantity\" : \"" + 0 + "\"" +
+                        "}")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isForbidden());
     }
 }
