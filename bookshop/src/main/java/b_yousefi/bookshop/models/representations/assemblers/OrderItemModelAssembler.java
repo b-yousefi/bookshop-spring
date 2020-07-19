@@ -4,6 +4,7 @@ import b_yousefi.bookshop.controllers.OrderController;
 import b_yousefi.bookshop.jpa.OrderItemRepository;
 import b_yousefi.bookshop.models.OrderItem;
 import b_yousefi.bookshop.models.representations.OrderItemModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class OrderItemModelAssembler extends ModelAssembler<OrderItem, OrderItemModel> {
 
+    @Autowired
+    private BookModelAssembler bookModelAssembler;
+
     public OrderItemModelAssembler(RepositoryRestConfiguration config) {
         super(OrderItemRepository.class, OrderItemModel.class, config);
     }
@@ -26,7 +30,7 @@ public class OrderItemModelAssembler extends ModelAssembler<OrderItem, OrderItem
                 .id(orderItem.getId())
                 .orderId(orderItem.getOrder().getId())
                 .quantity(orderItem.getQuantity())
-                .bookId(orderItem.getBook().getId())
+                .book(bookModelAssembler.toModel(orderItem.getBook()))
                 .build()
                 .add(fixLinkSelf(
                         methodOn(OrderController.class)

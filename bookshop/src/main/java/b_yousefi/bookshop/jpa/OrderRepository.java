@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,4 +58,8 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
     @PreAuthorize("hasRole('ADMIN') || (isAuthenticated() && (#order.user.username == principal.username))")
     @Override
     void delete(Order order);
+
+    @RestResource(exported = false)
+    @Query(value = "select sum(order_item.quantity * book.price) from order_item inner join book on order_item.book_id = book.id where order_id=:orderId",nativeQuery = true)
+    BigDecimal getTotalPrice(@Param("orderId") Long orderId);
 }

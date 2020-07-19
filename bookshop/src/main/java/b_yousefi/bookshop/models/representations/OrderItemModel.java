@@ -20,7 +20,7 @@ import org.springframework.hateoas.server.core.Relation;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderItemModel extends RepresentationModel<OrderItemModel> {
     private Long id;
-    private Long bookId;
+    private BookModel book;
     private int quantity;
     private Long orderId;
 }

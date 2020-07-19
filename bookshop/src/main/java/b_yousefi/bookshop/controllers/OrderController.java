@@ -111,10 +111,9 @@ public class OrderController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
-    @RequestMapping(value = "/order_items/add_book_to_shopping_cart", method = RequestMethod.POST)
+    @RequestMapping(value = "/order_items/update_shopping_cart", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<OrderItemModel> addBookToShoppingCart(@RequestBody EntityModel<OrderItem> orderItemModel)
+    public ResponseEntity<OrderItemModel> updateShoppingCart(@RequestBody EntityModel<OrderItem> orderItemModel)
             throws Exception {
         OrderItem orderItem = orderItemModel.getContent();
 
@@ -126,12 +125,19 @@ public class OrderController {
                 if (orderItem.getId() != null) {
                     Optional<OrderItem> orderItemPrev = orderItemRepository.findById(orderItem.getId());
                     if (orderItemPrev.isPresent()) {
-                        int addedCount = orderItem.getQuantity();
-                        orderItem.setQuantity(orderItemPrev.get().getQuantity() + addedCount);
-                        OrderItem orderItem_ = orderItemRepository.save(orderItem);
-                        orderItem.getBook().putOrder(addedCount);
-                        orderRepository.save(orderItem.getOrder());
-                        return new ResponseEntity<>(orderItemModelAssembler.toModel(orderItem_), HttpStatus.OK);
+                        int changedCount = orderItem.getQuantity() - orderItemPrev.get().getQuantity();
+                        if(orderItem.getQuantity() == 0){
+                            orderItemRepository.delete(orderItem);
+                            orderItem.getBook().putOrder(changedCount);
+                            orderRepository.save(orderItem.getOrder());
+                            return new ResponseEntity<>(orderItemModelAssembler.toModel(orderItem), HttpStatus.OK);
+                        } else {
+
+                            OrderItem orderItem_ = orderItemRepository.save(orderItem);
+                            orderItem.getBook().putOrder(changedCount);
+                            orderRepository.save(orderItem.getOrder());
+                            return new ResponseEntity<>(orderItemModelAssembler.toModel(orderItem_), HttpStatus.OK);
+                        }
                     } else {
                         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                     }
@@ -145,41 +151,9 @@ public class OrderController {
             } else {
                 throw new Exception("Order is not OPEN");
             }
-
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-
-    @RequestMapping(value = "/order_items/remove_book_from_shopping_cart", method = RequestMethod.POST)
-    public ResponseEntity<OrderItemModel> removeBookFromShoppingCart(@RequestBody EntityModel<OrderItem> orderItemModel) throws Exception {
-        OrderItem orderItem = orderItemModel.getContent();
-        if (orderItem != null) {
-            if (orderItem.getOrder() == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            if (orderItem.getOrder().getCurrentStatus().getStatus().equals(OrderStatus.OPEN)) {
-                Optional<OrderItem> orderItemPrev = orderItemRepository.findById(orderItem.getId());
-                if (orderItemPrev.isPresent()) {
-                    int removedCount = orderItem.getQuantity();
-                    orderItem.setQuantity(orderItemPrev.get().getQuantity() - removedCount);
-                    if (orderItem.getQuantity() == 0) {
-                        orderItemRepository.delete(orderItem);
-                        orderItem.getBook().putOrder(-removedCount);
-                        orderRepository.save(orderItem.getOrder());
-                        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-                    } else {
-                        OrderItem orderItem_ = orderItemRepository.save(orderItem);
-                        orderItem.getBook().putOrder(-removedCount);
-                        orderRepository.save(orderItem.getOrder());
-                        return new ResponseEntity<>(orderItemModelAssembler.toModel(orderItem_), HttpStatus.OK);
-                    }
-                }
-            } else {
-                throw new Exception("Order is not OPEN");
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/order_statuses/{id}", method = RequestMethod.GET)

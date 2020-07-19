@@ -2,6 +2,7 @@ package b_yousefi.bookshop.models.representations.assemblers;
 
 import b_yousefi.bookshop.controllers.OrderController;
 import b_yousefi.bookshop.jpa.BookRepository;
+import b_yousefi.bookshop.jpa.OrderRepository;
 import b_yousefi.bookshop.jpa.OrderStatusRecordRepository;
 import b_yousefi.bookshop.models.Order;
 import b_yousefi.bookshop.models.OrderStatusRecord;
@@ -28,6 +29,9 @@ public class OrderModelAssembler extends ModelAssembler<Order, OrderModel> {
     @Autowired
     OrderStatusRecordRepository orderStatusRecordRepository;
 
+    @Autowired
+    OrderRepository orderRepository;
+
     public OrderModelAssembler(RepositoryRestConfiguration config) {
         super(BookRepository.class, OrderModel.class, config);
     }
@@ -47,7 +51,7 @@ public class OrderModelAssembler extends ModelAssembler<Order, OrderModel> {
         orderModel.setCurrentStatus(
                 toOrderStatusModel(entity.getCurrentStatus(), orderModel));
         orderModel.setUserId(entity.getUser().getId());
-
+        orderModel.setTotalPrice(orderRepository.getTotalPrice(entity.getId()));
         return orderModel;
     }
 

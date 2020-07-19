@@ -9,6 +9,7 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -176,6 +177,7 @@ public abstract class DataTest {
                 .publication(createPublication())
                 .categories(categories)
                 .quantity(3)
+                .price(new BigDecimal(125))
                 .build();
         entityManager.persistAndFlush(book);
         return book;

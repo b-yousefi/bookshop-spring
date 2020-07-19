@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class OrderItemTest extends IntegratedTest {
     private static String JSON_PATH_TO_LIST = "$._embedded." + ORDER_ITEMS_PATH_NAME;
     private String pathToOrder, pathToBook2, pathToBook1, pathToOrderAdmin;
-    private String add_book_to_shopping_cart = ORDER_ITEMS_PATH_NAME + "/add_book_to_shopping_cart";
+    private String update_shopping_cart = ORDER_ITEMS_PATH_NAME + "/update_shopping_cart";
 
     @BeforeEach
     private void setPaths() throws Exception {
@@ -126,9 +126,10 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
 
         //cannot add order without order field
-        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
+        getMVC().perform(post(getPathTo(update_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
-                        + "\"book\" : \"" + pathToBook1 + "\"" +
+                        + "\"book\" : \"" + pathToBook1 + "\" ,"
+                        + "\"quantity\" : \"" + 1 + "\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
@@ -145,9 +146,10 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
 
         //cannot add order item without book field
-        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
+        getMVC().perform(post(getPathTo(update_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
-                        + "\"order\" : \"" + pathToOrder + "\" " +
+                        + "\"order\" : \"" + pathToOrder + "\" ,"
+                        + "\"quantity\" : \"" + 1 + "\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
@@ -163,10 +165,11 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(status().isOk());
 
         //add an order item to current user order with id = 1
-        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
+        getMVC().perform(post(getPathTo(update_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
                         + "\"order\" : \"" + pathToOrder + "\" ,"
-                        + "\"book\" : \"" + pathToBook1 + "\"" +
+                        + "\"book\" : \"" + pathToBook1 + "\" ,"
+                        + "\"quantity\" : \"" + 1 + "\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
@@ -189,7 +192,7 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath("quantity").value(1));
 
         //add an order item to current user order with id = 1
-        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
+        getMVC().perform(post(getPathTo(update_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
                         + "\"order\" : \"" + pathToOrder + "\" ,"
                         + "\"book\" : \"" + pathToBook2 + "\" ,"
@@ -328,10 +331,11 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath("quantity").value(1));
 
         //add an order item to current user order with id = 1
-        String pathCreatedObj = getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
+        String pathCreatedObj = getMVC().perform(post(getPathTo(update_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
                         + "\"order\" : \"" + pathToOrder + "\" ,"
-                        + "\"book\" : \"" + pathToBook2 + "\"" +
+                        + "\"book\" : \"" + pathToBook2 + "\" ," +
+                        "\"quantity\" : \"" + 1 + "\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
@@ -357,10 +361,11 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath("quantity").value(0));
 
         //post order to another user gets error
-        getMVC().perform(post(getPathTo(add_book_to_shopping_cart))
+        getMVC().perform(post(getPathTo(update_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{"
                         + "\"order\" : \"" + pathToOrderAdmin + "\" ,"
-                        + "\"book\" : \"" + pathToBook2 + "\"" +
+                        + "\"book\" : \"" + pathToBook2 + "\" ," +
+                        "\"quantity\" : \"" + 1 + "\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
@@ -369,7 +374,6 @@ public class OrderItemTest extends IntegratedTest {
 
     @Test
     void user_can_remove_order_item_from_its_own_shopping_cart_for_user() throws Exception {
-        String remove_book_from_shopping_cart = ORDER_ITEMS_PATH_NAME + "/remove_book_from_shopping_cart";
         //there is 1 order item for this user
         getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
                 .header("Authorization", getUserToken())
@@ -384,16 +388,16 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath("quantity").value(3));
 
         //add an order item to current user order with id = 1
-        getMVC().perform(post(getPathTo(remove_book_from_shopping_cart))
+        getMVC().perform(post(getPathTo(update_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
                         "\"id\" : \"" + 2 + "\" ," +
                         "\"order\" : \"" + pathToOrder + "\" ," +
                         "\"book\" : \"" + pathToBook1 + "\" ," +
-                        "\"quantity\" : \"" + 1 + "\"" +
+                        "\"quantity\" : \"" + 0 + "\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
 
         //check that order item is removed
         getMVC().perform(get(getPathTo(ORDER_ITEMS_PATH_NAME))
@@ -409,7 +413,7 @@ public class OrderItemTest extends IntegratedTest {
                 .andExpect(jsonPath("quantity").value(4));
 
         //post order to another user gets error
-        getMVC().perform(post(getPathTo(remove_book_from_shopping_cart))
+        getMVC().perform(post(getPathTo(update_shopping_cart))
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
                         "\"id\" : \"" + 1 + "\" ," +
                         "\"order\" : \"" + pathToOrder + "\" ," +

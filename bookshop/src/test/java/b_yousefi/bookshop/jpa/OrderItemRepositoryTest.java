@@ -4,6 +4,8 @@ import b_yousefi.bookshop.models.OrderItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -32,5 +34,11 @@ public class OrderItemRepositoryTest extends DataTest {
     @Test
     void countByOrder_Id() {
         assertThat(getOrderItemRepository().countByOrder_Id(orderItem.getOrder().getId())).isEqualTo(1);
+    }
+
+    @Test
+    void getTotalPrice() {
+        assertThat(getOrderRepository().getTotalPrice(orderItem.getOrder().getId()))
+                .usingComparator(BigDecimal::compareTo).isEqualTo(new BigDecimal(250));
     }
 }

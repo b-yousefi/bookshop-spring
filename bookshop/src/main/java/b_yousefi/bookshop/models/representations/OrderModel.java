@@ -6,6 +6,8 @@ import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
+import java.math.BigDecimal;
+
 /**
  * Created by: b.yousefi
  * Date: 7/7/2020
@@ -23,4 +25,5 @@ public class OrderModel extends RepresentationModel<OrderModel> {
     private Long userId;
     private Long addressId;
     private OrderStatusModel currentStatus;
+    private BigDecimal totalPrice;
 }
