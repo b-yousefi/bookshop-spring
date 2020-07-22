@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
@@ -15,7 +14,6 @@ import java.util.List;
  * Created by: b.yousefi
  * Date: 5/10/2020
  */
-@CrossOrigin(origins = {"http://localhost:3000"})
 public interface BookRepository extends CrudRepository<Book, Long> {
     @RestResource(rel = "byAuthorId", path = "byAuthorId")
     Page<Book> findByAuthors_Id(@Param("authorId") Long authorId, Pageable pageable);

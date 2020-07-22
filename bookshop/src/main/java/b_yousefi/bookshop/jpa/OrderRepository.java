@@ -11,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +20,6 @@ import java.util.Optional;
  * Created by: b.yousefi
  * Date: 5/10/2020
  */
-@CrossOrigin(origins = {"http://localhost:3000"})
 public interface OrderRepository extends CrudRepository<Order, Long> {
     @PreAuthorize("isAuthenticated() && hasRole('ADMIN')")
     @Override
@@ -60,6 +58,6 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
     void delete(Order order);
 
     @RestResource(exported = false)
-    @Query(value = "select sum(order_item.quantity * book.price) from order_item inner join book on order_item.book_id = book.id where order_id=:orderId",nativeQuery = true)
+    @Query(value = "select sum(order_item.quantity * book.price) from order_item inner join book on order_item.book_id = book.id where order_id=:orderId", nativeQuery = true)
     BigDecimal getTotalPrice(@Param("orderId") Long orderId);
 }

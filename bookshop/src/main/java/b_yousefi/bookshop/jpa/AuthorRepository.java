@@ -7,14 +7,12 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 /**
  * Created by: b.yousefi
  * Date: 5/10/2020
  */
 
-@CrossOrigin(origins = {"http://localhost:3000"})
 @RepositoryRestResource
 public interface AuthorRepository extends CrudRepository<Author, Long> {
     @RestResource(rel = "authorsByName", path = "authorsByName")

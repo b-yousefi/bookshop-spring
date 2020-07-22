@@ -9,7 +9,6 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.Optional;
 
@@ -17,7 +16,6 @@ import java.util.Optional;
  * Created by: b.yousefi
  * Date: 5/10/2020
  */
-@CrossOrigin(origins = {"http://localhost:3000"})
 @RepositoryRestResource
 public interface UserRepository extends CrudRepository<User, Long> {
     @PostFilter("hasRole('ADMIN') || filterObject.username == principal.username")
