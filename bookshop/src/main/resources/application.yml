@@ -37,6 +37,14 @@ logging:
   level:
     b_yousefi: WARN
 
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:keystore/mykeys.jks
+    key-store-password: Behrooz@1986
+    key-password: Behrooz@1986
+    keyStoreType: JKS
+    keyAlias: tomcat
 ---
 spring:
   profiles: test
