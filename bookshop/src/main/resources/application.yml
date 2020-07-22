@@ -41,8 +41,8 @@ server:
   port: 8443
   ssl:
     key-store: classpath:keystore/mykeys.jks
-    key-store-password: Behrooz@1986
-    key-password: Behrooz@1986
+    key-store-password: AAAA
+    key-password: AAAA
     keyStoreType: JKS
     keyAlias: tomcat
 ---
@@ -73,3 +73,12 @@ logging:
   config: classpath:logback-prod.xml
   level:
     b_yousefi: info
+
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:keystore/pord/mykeys.jks
+    key-store-password: Behrooz@1986
+    key-password: Behrooz@1986
+    keyStoreType: JKS
+    keyAlias: tomcat
