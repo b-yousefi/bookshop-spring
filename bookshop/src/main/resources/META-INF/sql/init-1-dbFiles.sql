@@ -140,3 +140,147 @@ VALUES
  LOAD_FILE('F:/Project/git/data/NineteenEighty-Four.jpg'),
  'Nineteen Eighty-Four',
  'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(14,
+ LOAD_FILE('F:/Project/git/data/ASongOfIceAndFire-Book-One.jpg'),
+ 'A Song of Ice and Fire (Book 1)',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(15,
+ LOAD_FILE('F:/Project/git/data/ASongOfIceAndFire-Book-Two.jpg'),
+ 'A Song of Ice and Fire (Book 2)',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(16,
+ LOAD_FILE('F:/Project/git/data/ASongOfIceAndFire-Book-Three.jpg'),
+ 'A Song of Ice and Fire (Book 3)',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(17,
+ LOAD_FILE('F:/Project/git/data/ASongOfIceAndFire-Book-Four.jpg'),
+ 'A Song of Ice and Fire (Book 4)',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(18,
+ LOAD_FILE('F:/Project/git/data/ASongOfIceAndFire-Book-Five.jpg'),
+ 'A Song of Ice and Fire (Book 5)',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(19,
+ LOAD_FILE('F:/Project/git/data/HarryPotter1.jpg'),
+ 'Harry Potter and the Sorcerer''s Stone',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(20,
+ LOAD_FILE('F:/Project/git/data/HarryPotter2.jpg'),
+ 'Harry Potter and the Chamber of Secrets',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(21,
+ LOAD_FILE('F:/Project/git/data/HarryPotter3.jpg'),
+ 'Harry Potter and the Prisoner of Azkaban',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(22,
+ LOAD_FILE('F:/Project/git/data/HarryPotter4.jpg'),
+ 'Harry Potter And The Goblet Of Fire',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(23,
+ LOAD_FILE('F:/Project/git/data/HarryPotter5.jpg'),
+ 'Harry Potter and the Order of the Phoenix',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(24,
+ LOAD_FILE('F:/Project/git/data/HarryPotter6.jpg'),
+ 'Harry Potter and the Half-Blood Prince',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(25,
+ LOAD_FILE('F:/Project/git/data/HarryPotter7.jpg'),
+ 'Harry Potter and the Deathly Hallows',
+ 'Image');
+/*---------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`dbfile`
+(`id`,
+ `data`,
+ `file_name`,
+ `file_type`)
+VALUES
+(26,
+ LOAD_FILE('F:/Project/git/data/TheCourseOfLove.jpg'),
+ 'The Course of Love',
+ 'Image');
+/*---------------------------------------------------------*/

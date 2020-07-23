@@ -82,7 +82,41 @@ VALUES
 'Penguin',
 'Penguin Books is a British publishing house. It was co-founded in 1935 by Sir Allen Lane with his brothers Richard and John, as a line of the publishers The Bodley Head, only becoming a separate company the following year. ');
 /*------------------------------------------------------------------------*/
-
- 
+INSERT INTO `db_bookshop`.`publication`
+(`id`,
+ `website`,
+ `name`,
+ `description`
+)
+VALUES
+(8,
+ 'https://starwars.fandom.com/wiki/Bantam_Spectra',
+ 'Bantam Spectra',
+ 'Bantam Spectra is the science fiction division of American publishing company Bantam Books, which is owned by Random House. According to their website, Spectra publishes "science fiction, fantasy, horror, and speculative novels from recognizable authors');
+/*------------------------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`publication`
+(`id`,
+ `website`,
+ `name`,
+ `description`
+)
+VALUES
+(9,
+ 'https://www.scholastic.com/home',
+ 'Scholastic Corporation',
+ 'Scholastic Corporation is an American multinational publishing, education and media company known for publishing, selling and distributing comics, books and educational materials for schools, teachers, parents and children.');
+/*------------------------------------------------------------------------*/
+INSERT INTO `db_bookshop`.`publication`
+(`id`,
+ `website`,
+ `name`,
+ `description`
+)
+VALUES
+(10,
+ 'https://www.simonandschuster.com/',
+ 'Simon & Schuster',
+ 'Simon & Schuster, a subsidiary of ViacomCBS, is an American publishing company founded in New York City in 1924 by Richard L. Simon and M. Lincoln Schuster. As of 2016, Simon & Schuster was publishing 2,000 titles annually under 35 different imprints.');
+/*------------------------------------------------------------------------*/
 
 
