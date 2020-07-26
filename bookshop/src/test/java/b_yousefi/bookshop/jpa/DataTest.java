@@ -117,6 +117,8 @@ public abstract class DataTest {
         Address address = Address.builder()
                 .state("Tehran")
                 .city("Tehran")
+                .latitude(35.672746)
+                .longitude(51.336169)
                 .zipCode("123445")
                 .user(user)
                 .build();

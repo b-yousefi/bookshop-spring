@@ -34,11 +34,22 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
     @Override
     Optional<Order> findById(Long aLong);
 
-    //    @Query(value = "SELECT distinct * FROM Book ord WHERE ord.user.id = :userId ")
-    @Query("select ord from Order ord inner join ord.orderStatusRecords st_records WHERE ord.user.id = :userId and st_records.status= :orderStatus")
-    List<Order> findOrderWithStatus(@Param("userId") Long userId, @Param("orderStatus") OrderStatus orderStatus);
-
-    @Query("select ord from Order ord inner join ord.orderStatusRecords st_records WHERE ord.user.username = :username and st_records.status= :orderStatus")
+    @Query(value = "select * " +
+            "from order_table " +
+            "where id " +
+            "in ( " +
+            "select order_status.order_id " +
+            "from order_status " +
+            "where (order_id, order_status.updated_at) " +
+            "in " +
+            "(select order_id, max(os.updated_at) as tiem " +
+            "from order_table " +
+            "inner join order_status os on order_table.id = os.order_id " +
+            "inner join user u on order_table.user_id = u.id " +
+            "where u.username = :username " +
+            "group by os.order_id) " +
+            "and order_status.status = :#{#orderStatus.getStatusCode()} " +
+            ")", nativeQuery = true)
     List<Order> findOrderWithStatusAndUserName(@Param("username") String username, @Param("orderStatus") OrderStatus orderStatus);
 
     @RestResource(path = "myOrders", rel = "myOrders")

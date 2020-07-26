@@ -20,7 +20,13 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String street;
+    private String address;
+
+    @NotNull(message = "Address must be marked on map")
+    private Double latitude;
+
+    @NotNull(message = "Address must be marked on map")
+    private Double longitude;
 
     private String state;
 

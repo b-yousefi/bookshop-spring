@@ -42,7 +42,7 @@ public class UserModelAssembler extends ModelAssembler<User, UserModel> {
         userModel.setPhoneNumber(entity.getPhoneNumber());
         userModel.setPicture(entity.getPicture());
         userModel.setAdmin(entity.isAdmin());
-        List<Order> orders = orderRepository.findOrderWithStatus(entity.getId(), OrderStatus.OPEN);
+        List<Order> orders = orderRepository.findOrderWithStatusAndUserName(entity.getUsername(), OrderStatus.OPEN);
         assert orders.size() == 1;
         userModel.setOpenOrder(orderModelAssembler.toModel(orders.get(0)));
         userModel.add(fixLinkSelf(

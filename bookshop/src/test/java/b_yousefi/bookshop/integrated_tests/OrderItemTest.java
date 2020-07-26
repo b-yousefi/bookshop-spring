@@ -1,5 +1,6 @@
 package b_yousefi.bookshop.integrated_tests;
 
+import b_yousefi.bookshop.models.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -423,5 +424,48 @@ public class OrderItemTest extends IntegratedTest {
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void when_user_can_close_its_own_shopping_cart() throws Exception {
+        String result = getMVC().perform(get(getPathTo(ADDRESSES_PATH_NAME) + 2)
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath(getHrefFromLinks("self"), endsWith("2")))
+                .andReturn().getResponse().getContentAsString();
+        String pathToAddress = getObjectMapper().readTree(result).path("_links").path("self").path("href").asText();
+        //get shopping cart for user with id = 2, with its own credential
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + "get_shopping_cart")
+                .param("username", "user_test1")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("$.currentStatus.status").value(OrderStatus.OPEN.name()))
+                .andExpect(jsonPath("$._links.self.href", endsWith("2")));
+        //close user shopping cart
+        getMVC().perform(post(getPathTo(ORDERS_PATH_NAME) + "close_shopping_cart")
+                .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "\"id\" : \"" + 2 + "\" ," +
+                        "\"user\" : \"" + getPathToUser() + "\" ," +
+                        "\"address\" : \"" + pathToAddress + "\"" +
+                        "}")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(OrderStatus.ORDERED.name()));
+
+        getMVC().perform(get(getPathTo(ORDERS_PATH_NAME) + "2")
+                .param("username", "user_test1")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("$.currentStatus.status").value(OrderStatus.ORDERED.name()))
+                .andExpect(jsonPath("$.history", hasSize(2)))
+                .andExpect(jsonPath("$._links.self.href", endsWith("2")));
+
+        //user has 4 orders, an open order is created
+        getMVC().perform(get(getPathTo(ORDERS_PATH_NAME))
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.orders", hasSize(4)));
     }
 }

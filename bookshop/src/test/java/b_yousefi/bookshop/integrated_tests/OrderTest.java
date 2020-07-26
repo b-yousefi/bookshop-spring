@@ -1,5 +1,6 @@
 package b_yousefi.bookshop.integrated_tests;
 
+import b_yousefi.bookshop.models.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -374,6 +375,26 @@ public class OrderTest extends IntegratedTest {
         getMVC().perform(delete(getPathTo(ORDERS_PATH_NAME) + 2)
                 .contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void when_user_can_close_its_own_shopping_cart_with_no_address_get_error() throws Exception {
+        //get shopping cart for user with id = 2, with its own credential
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + "get_shopping_cart")
+                .param("username", "user_test1")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("$.currentStatus.status").value(OrderStatus.OPEN.name()))
+                .andExpect(jsonPath("$._links.self.href", endsWith("2")));
+        //close user shopping cart
+        getMVC().perform(post(getPathTo(ORDERS_PATH_NAME) + "close_shopping_cart")
+                .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "\"id\" : \"" + 2 + "\" ," +
+                        "\"user\" : \"" + getPathToUser() + "\" ," +
+                        "}")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(status().isBadRequest());
     }
 
 }

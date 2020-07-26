@@ -4,10 +4,7 @@ import b_yousefi.bookshop.jpa.OrderItemRepository;
 import b_yousefi.bookshop.jpa.OrderRepository;
 import b_yousefi.bookshop.jpa.OrderStatusRecordRepository;
 import b_yousefi.bookshop.jpa.UserRepository;
-import b_yousefi.bookshop.models.Order;
-import b_yousefi.bookshop.models.OrderItem;
-import b_yousefi.bookshop.models.OrderStatus;
-import b_yousefi.bookshop.models.User;
+import b_yousefi.bookshop.models.*;
 import b_yousefi.bookshop.models.representations.OrderDetailedModel;
 import b_yousefi.bookshop.models.representations.OrderItemModel;
 import b_yousefi.bookshop.models.representations.OrderModel;
@@ -34,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -126,7 +124,7 @@ public class OrderController {
                     Optional<OrderItem> orderItemPrev = orderItemRepository.findById(orderItem.getId());
                     if (orderItemPrev.isPresent()) {
                         int changedCount = orderItem.getQuantity() - orderItemPrev.get().getQuantity();
-                        if(orderItem.getQuantity() == 0){
+                        if (orderItem.getQuantity() == 0) {
                             orderItemRepository.delete(orderItem);
                             orderItem.getBook().putOrder(changedCount);
                             orderRepository.save(orderItem.getOrder());
@@ -151,6 +149,27 @@ public class OrderController {
             } else {
                 throw new Exception("Order is not OPEN");
             }
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @RequestMapping(value = "/orders/close_shopping_cart", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<OrderStatusModel> closeShoppingCart(@RequestBody EntityModel<Order> orderModel)
+            throws Exception {
+
+        Optional<Order> opOrder = orderRepository.findById(Objects.requireNonNull(orderModel.getContent()).getId());
+
+        if (opOrder.isPresent()) {
+            Order order = orderRepository.findById(opOrder.get().getId()).get();
+            if (orderModel.getContent().getAddress() == null || order.getOrderItems().size() == 0) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            order.setAddress(orderModel.getContent().getAddress());
+            OrderStatusRecord orderStatusRecord = OrderStatusRecord.builder().order(order).status(OrderStatus.ORDERED).build();
+            OrderStatusRecord saved = orderStatusRepository.save(orderStatusRecord);
+            return new ResponseEntity<>(orderStatusModelAssembler.toModel(saved), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

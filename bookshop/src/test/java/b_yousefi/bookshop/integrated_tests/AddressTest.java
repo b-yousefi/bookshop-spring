@@ -73,9 +73,11 @@ public class AddressTest extends IntegratedTest {
 
         //add address to current user
         String pathCreatedObj = getMVC().perform(post(getPathTo(ADDRESSES_PATH_NAME))
-                .contentType(MediaType.APPLICATION_JSON).content("{"
-                        + "\"city\" : \"Toronto\" ,"
-                        + "\"user\" : \"" + getPathToUser() + "\"" +
+                .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "  \"city\": \"Toronto\" ," +
+                        "  \"latitude\": \"43.6532\" ," +
+                        "  \"longitude\": \"79.3832\" ," +
+                        "  \"user\" : \"" + getPathToUser() + "\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
@@ -107,9 +109,11 @@ public class AddressTest extends IntegratedTest {
 
         //add address to other user
         String pathCreatedObj = getMVC().perform(post(getPathTo(ADDRESSES_PATH_NAME))
-                .contentType(MediaType.APPLICATION_JSON).content("{"
-                        + "\"city\" : \"Toronto\" ,"
-                        + "\"user\" : \"" + getPathToUser() + "\"" +
+                .contentType(MediaType.APPLICATION_JSON).content("{" +
+                        "  \"city\": \"Toronto\" ," +
+                        "  \"latitude\": \"43.6532\" ," +
+                        "  \"longitude\": \"79.3832\" ," +
+                        "\"user\" : \"" + getPathToUser() + "\"" +
                         "}")
                 .header("Authorization", getAdmin())
                 .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
@@ -276,7 +280,9 @@ public class AddressTest extends IntegratedTest {
         //users with ADMIN role can patch to users path and change the city of another user to "Toronto"
         getMVC().perform(put(getPathTo(ADDRESSES_PATH_NAME) + 2)
                 .contentType(MediaType.APPLICATION_JSON).content("{" +
-                        "  \"city\": \"Toronto\"" +
+                        "  \"city\": \"Toronto\" ," +
+                        "  \"latitude\": \"43.6532\" ," +
+                        "  \"longitude\": \"79.3832\"" +
                         "}")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
