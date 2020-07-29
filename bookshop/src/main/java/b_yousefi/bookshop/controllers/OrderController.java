@@ -14,6 +14,7 @@ import b_yousefi.bookshop.models.representations.assemblers.OrderItemModelAssemb
 import b_yousefi.bookshop.models.representations.assemblers.OrderModelAssembler;
 import b_yousefi.bookshop.models.representations.assemblers.OrderStatusModelAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -163,8 +164,11 @@ public class OrderController {
 
         if (opOrder.isPresent()) {
             Order order = orderRepository.findById(opOrder.get().getId()).get();
-            if (orderModel.getContent().getAddress() == null || order.getOrderItems().size() == 0) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            if (orderModel.getContent().getAddress() == null) {
+                throw  new DataIntegrityViolationException("Order must have an address");
+            }
+            if (order.getOrderItems().size() == 0) {
+                throw  new DataIntegrityViolationException("Order cannot be empty!");
             }
             order.setAddress(orderModel.getContent().getAddress());
             OrderStatusRecord orderStatusRecord = OrderStatusRecord.builder().order(order).status(OrderStatus.ORDERED).build();

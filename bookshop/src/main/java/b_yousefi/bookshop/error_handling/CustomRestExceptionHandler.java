@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -128,23 +129,32 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         if (ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
             org.hibernate.exception.ConstraintViolationException exDetail =
                     (org.hibernate.exception.ConstraintViolationException) ex.getCause();
-
-            String cause = exDetail.getConstraintName();
-            String message = exDetail.getLocalizedMessage();
-            if (cause.contains("UK_CATEGORY__NAME_PARENT")) {
-                message = "Duplicate category name, in each category subcategory names must be unique";
-            } else if (cause.contains("UK_USER_username")) {
-                message = "This username already exists";
-            } else if (cause.contains("UK_USER_email")) {
-                message = "This email already exists";
-            } else if (cause.contains("UK_USER_phoneNumber")) {
-                message = "This phone number already exists";
-            } else if (cause.contains("UK_AUTHOR__fullName")) {
-                message = "This author name already exists";
-            } else if (cause.contains("UK_ORDER_ITEM__order_book")) {
-                message = "This book has been already added to the order";
+            if(exDetail.getConstraintName()!=null) {
+                String cause = exDetail.getConstraintName();
+                String message = exDetail.getLocalizedMessage();
+                if (cause.contains("UK_CATEGORY__NAME_PARENT")) {
+                    message = "Duplicate category name, in each category subcategory names must be unique";
+                } else if (cause.contains("UK_USER_username")) {
+                    message = "This username already exists";
+                } else if (cause.contains("UK_USER_email")) {
+                    message = "This email already exists";
+                } else if (cause.contains("UK_USER_phoneNumber")) {
+                    message = "This phone number already exists";
+                } else if (cause.contains("UK_AUTHOR__fullName")) {
+                    message = "This author name already exists";
+                } else if (cause.contains("UK_ORDER_ITEM__order_book")) {
+                    message = "This book has been already added to the order";
+                }
+                errorCause = new ErrorCause(cause, message);
+            } else if(exDetail.getCause() instanceof SQLIntegrityConstraintViolationException){
+                String message = exDetail.getCause().getLocalizedMessage();
+                if(message.contains("Cannot delete or update a parent row: a foreign key constraint fails")){
+                    message = "Error occurred while deleting, data has some relation to other data!";
+                }
+                errorCause = new ErrorCause("Database Error", message);
+            } else {
+                errorCause = new ErrorCause("Database Error", exDetail.getLocalizedMessage());
             }
-            errorCause = new ErrorCause(cause, message);
         } else {
             errorCause = new ErrorCause(DataIntegrityViolationException.class.getName(), ex.getLocalizedMessage());
         }

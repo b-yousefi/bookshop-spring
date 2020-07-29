@@ -38,7 +38,7 @@ public interface BookRepository extends CrudRepository<Book, Long> {
     Page<Book> findByCategory_Ids(
             @Param("categoryIds") List<Long> categoryIds, Pageable pageable);
 
-    @Query(value = "SELECT * " +
+    @Query(value = "SELECT distinct book.* " +
             " FROM  book" +
             " INNER JOIN book_author" +
             " ON book_author.book_id = book.id" +
@@ -47,7 +47,17 @@ public interface BookRepository extends CrudRepository<Book, Long> {
             " WHERE (COALESCE(:publicationIds, NULL) IS NULL OR publication_id in :publicationIds)" +
             " AND (COALESCE(:authorIds, NULL) IS NULL OR book_author.author_id in :authorIds)" +
             " AND(COALESCE(:categoryIds, NULL) IS NULL OR book_category.category_id in :categoryIds)" +
-            " GROUP BY book.id", nativeQuery = true)
+            " ORDER BY book.name",
+            countQuery = "SELECT count(distinct (book.id))" +
+                    " FROM  book" +
+                    " INNER JOIN book_author" +
+                    " ON book_author.book_id = book.id" +
+                    " INNER JOIN book_category" +
+                    " ON book_category.book_id = book.id" +
+                    " WHERE (COALESCE(:publicationIds, NULL) IS NULL OR publication_id in :publicationIds)" +
+                    " AND (COALESCE(:authorIds, NULL) IS NULL OR book_author.author_id in :authorIds)" +
+                    " AND(COALESCE(:categoryIds, NULL) IS NULL OR book_category.category_id in :categoryIds)"
+            ,nativeQuery = true)
     @RestResource(rel = "filter", path = "filter")
     Page<Book> filter(@Param("publicationIds") List<Long> publicationIds,
                       @Param("categoryIds") List<Long> categoryIds, @Param("authorIds") List<Long> authorIds, Pageable pageable);
