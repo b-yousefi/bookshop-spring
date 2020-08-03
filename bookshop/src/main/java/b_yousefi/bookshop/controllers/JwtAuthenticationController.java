@@ -56,6 +56,7 @@ public class JwtAuthenticationController {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<UserModel> saveUser(@RequestBody User user) {
+        user.setRole("ROLE_USER");
         User createdUser = userDetailsService.save(user);
         return new ResponseEntity<>(userModelAssembler.toModel(createdUser), HttpStatus.CREATED);
     }
