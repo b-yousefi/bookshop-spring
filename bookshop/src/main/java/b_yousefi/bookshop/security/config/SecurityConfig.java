@@ -20,7 +20,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -59,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/authenticate", "/register").permitAll()
+                .antMatchers(HttpMethod.POST, "/**/authenticate", "/**/register").permitAll()
                 .antMatchers(HttpMethod.PATCH, "/**/users/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers(HttpMethod.GET, "/**/users/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers(HttpMethod.POST, "/**/order_statuses/**").hasAnyRole("USER", "ADMIN")
@@ -84,10 +83,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://localhost:3000",
-                "https://byousefi.ir", "https://www.byousefi.ir"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000",
+                "https://byousefi.ir","https://www.byousefi.ir"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "OPTION", "DELETE"));
-        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setMaxAge(1800L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

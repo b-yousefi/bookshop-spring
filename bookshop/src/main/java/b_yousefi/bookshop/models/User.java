@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ public class User implements UserDetails {
     @Pattern(regexp = "^\\d{12}$", message = "Phone number is not acceptable")
     private String phoneNumber;
 
+    @Email
     @NotBlank(message = "Email is required")
     private String email;
 

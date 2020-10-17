@@ -9,6 +9,7 @@ import b_yousefi.bookshop.security.JwtTokenUtil;
 import b_yousefi.bookshop.security.TokenAuthenticationException;
 import b_yousefi.bookshop.services.UserRepositoryUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
  * Date: 5/11/2020
  */
 @RestController
+@BasePathAwareController
 @CrossOrigin
 public class JwtAuthenticationController {
     @Autowired
@@ -56,7 +58,6 @@ public class JwtAuthenticationController {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<UserModel> saveUser(@RequestBody User user) {
-        user.setRole("ROLE_USER");
         User createdUser = userDetailsService.save(user);
         return new ResponseEntity<>(userModelAssembler.toModel(createdUser), HttpStatus.CREATED);
     }
