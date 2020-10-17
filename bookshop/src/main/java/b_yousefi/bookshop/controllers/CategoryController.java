@@ -31,7 +31,7 @@ public class CategoryController {
     @Autowired
     CategoryAssembler categoryAssembler;
 
-    @RequestMapping("/api/categories/allcategories")
+    @RequestMapping("/bookshop/api/categories/allcategories")
     @ResponseBody
     public ResponseEntity<CollectionModel<CategoryRep>> fetchAll() {
         List<Category> categoryList = categoryRepository.findAllByParentCat_Id(null);
