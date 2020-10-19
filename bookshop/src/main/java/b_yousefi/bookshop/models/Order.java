@@ -36,7 +36,7 @@ public class Order {
     private Address address;
 
     @Builder.Default
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "order", orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "order", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderStatusRecord> orderStatusRecords = new ArrayList<>();
 
     @Builder.Default
