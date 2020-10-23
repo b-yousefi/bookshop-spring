@@ -1,9 +1,16 @@
 package b_yousefi.bookshop.integrated_tests;
 
+import b_yousefi.bookshop.jpa.UserRepository;
 import b_yousefi.bookshop.models.OrderStatus;
+import b_yousefi.bookshop.models.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
@@ -19,7 +26,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @Sql("create_user.sql")
 public class UserTest extends IntegratedTest {
-    private static String JSON_PATH_TO_LIST = "$._embedded." + USERS_PATH_NAME;
+    private static final String JSON_PATH_TO_LIST = "$._embedded." + USERS_PATH_NAME;
+    private List<User> userList;
+    @Autowired
+    private UserRepository userRepository;
+
+    @BeforeEach
+    void setUp() {
+        this.userList = new ArrayList<>();
+        this.userList.add(User.builder().id(1L).username("admin").password("admin").role("ROLE_ADMIN").build());
+        this.userList.add(User.builder().id(2L).username("user_test1").password("user_test1").role("ROLE_USER").build());
+    }
 
     @Test
     void register() throws Exception {
@@ -33,6 +50,17 @@ public class UserTest extends IntegratedTest {
                 .andExpect(status().isCreated())
                 //check that an order with status "open" is created while registering
                 .andExpect(jsonPath("$.openOrder.currentStatus.status").value(OrderStatus.OPEN.name()));
+
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 2 + "/shopping_cart")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andExpect(jsonPath("$.currentStatus.status").value(OrderStatus.OPEN.name()));
+
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 2 + "/orders")
+                .header("Authorization", getUserToken())
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
+                .andDo(print())
+                .andExpect(jsonPath("$._embedded.orders", hasSize(1)));
     }
 
     @Test
@@ -94,8 +122,7 @@ public class UserTest extends IntegratedTest {
                 .andExpect(jsonPath("$._links.self.href", endsWith("2")));
 
         //get shopping cart for user with id = 2, with its own credential
-        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + "get_shopping_cart")
-                .param("username", "user_test1")
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 2 + "/shopping_cart")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(jsonPath("$.currentStatus.status").value(OrderStatus.OPEN.name()))
