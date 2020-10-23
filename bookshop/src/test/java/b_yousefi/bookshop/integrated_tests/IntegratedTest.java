@@ -70,8 +70,8 @@ public abstract class IntegratedTest {
 
     @BeforeEach
     public void setupUsers() throws Exception {
-        admin = User.builder().username("admin").password("admin").role("ROLE_ADMIN").build();
-        user = User.builder().username("user_test1").password("user_test1").role("ROLE_USER").build();
+        admin = User.builder().id(1L).username("admin").password("admin").role("ROLE_ADMIN").build();
+        user = User.builder().id(2L).username("user_test1").password("user_test1").role("ROLE_USER").build();
         adminToken = createToken(admin);
         userToken = createToken(user);
         this.mvc = MockMvcBuilders.webAppContextSetup(context).addFilters(filterChain).build();

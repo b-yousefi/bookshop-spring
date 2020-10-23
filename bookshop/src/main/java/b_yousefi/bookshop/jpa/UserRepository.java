@@ -1,7 +1,6 @@
 package b_yousefi.bookshop.jpa;
 
 import b_yousefi.bookshop.models.User;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -24,10 +23,6 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     @RestResource(exported = false)
     Optional<User> findByUsername(@Param("username") String username);
-
-    @PreAuthorize("hasRole('ADMIN') || (isAuthenticated() && (#username == principal.username)) ")
-    @Query("select user from User user where  :username = user.username ")
-    User findUser(@Param("username") String username);
 
     @PreAuthorize("hasRole('ADMIN') || (isAuthenticated() && (#s.username == principal.username)) || #s.id == null")
     @Override

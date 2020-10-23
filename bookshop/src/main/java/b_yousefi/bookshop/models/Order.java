@@ -51,7 +51,8 @@ public class Order {
     }
 
     public List<OrderStatusRecord> getSortedOrderStatusRecords() {
-        orderStatusRecords.sort(Comparator.comparing(OrderStatusRecord::getUpdatedAt, Comparator.reverseOrder()));
+        if (orderStatusRecords.size() > 1)
+            orderStatusRecords.sort(Comparator.comparing(OrderStatusRecord::getUpdatedAt, Comparator.reverseOrder()));
         return orderStatusRecords;
     }
 }

@@ -3,7 +3,6 @@ package b_yousefi.bookshop.services;
 import b_yousefi.bookshop.jpa.UserRepository;
 import b_yousefi.bookshop.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +16,7 @@ import java.util.Optional;
  */
 @Service
 public class UserRepositoryUserDetailsService implements UserDetailsService {
-    private UserRepository userRepo;
+    private final UserRepository userRepo;
     @Autowired
     private PasswordEncoder bcryptEncoder;
 
@@ -27,7 +26,7 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username)
+    public User loadUserByUsername(String username)
             throws UsernameNotFoundException {
         Optional<User> opUser = userRepo.findByUsername(username);
         if (opUser.isPresent()) return opUser.get();

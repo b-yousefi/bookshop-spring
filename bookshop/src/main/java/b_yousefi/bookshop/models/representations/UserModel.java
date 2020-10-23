@@ -23,12 +23,11 @@ public class UserModel extends RepresentationModel<UserModel> {
     public boolean isAdmin;
     private Long id;
     private String username;
-    private String password;
     private String firstName;
     private String lastName;
     private String role = "ROLE_USER";
     private DBFile picture;
     private String phoneNumber;
     private String email;
-    private OrderModel openOrder;
+    private OrderDetailedModel openOrder;
 }

@@ -22,7 +22,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class UserModelAssembler extends ModelAssembler<User, UserModel> {
     @Autowired
-    OrderModelAssembler orderModelAssembler;
+    OrderDetailedModelAssembler orderDetailedModelAssembler;
     @Autowired
     OrderRepository orderRepository;
 
@@ -38,20 +38,16 @@ public class UserModelAssembler extends ModelAssembler<User, UserModel> {
         userModel.setEmail(entity.getEmail());
         userModel.setFirstName(entity.getFirstName());
         userModel.setLastName(entity.getLastName());
-        userModel.setPassword(entity.getPassword());
         userModel.setPhoneNumber(entity.getPhoneNumber());
         userModel.setPicture(entity.getPicture());
         userModel.setAdmin(entity.isAdmin());
-        List<Order> orders = orderRepository.findOrderWithStatusAndUserName(entity.getUsername(), OrderStatus.OPEN);
+        List<Order> orders = orderRepository.findOrderWithStatusAndUserId(entity.getId(), OrderStatus.OPEN);
         assert orders.size() == 1;
-        userModel.setOpenOrder(orderModelAssembler.toModel(orders.get(0)));
+        userModel.setOpenOrder(orderDetailedModelAssembler.toModel(orders.get(0)));
         userModel.add(fixLinkSelf(
                 methodOn(UserController.class)
                         .getUserById(entity.getId()))
                 .withSelfRel());
-
-        //        userModel.setOrders(entity.getOrders().stream().map(Order::getId).collect(Collectors.toList()));
-//        userModel.setAddresses(entity.getAddresses().stream().map(Address::getId).collect(Collectors.toList()));
         return userModel;
     }
 }

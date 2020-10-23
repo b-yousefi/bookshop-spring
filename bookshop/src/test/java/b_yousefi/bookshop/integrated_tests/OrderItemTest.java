@@ -32,9 +32,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         }
 )
 public class OrderItemTest extends IntegratedTest {
-    private static String JSON_PATH_TO_LIST = "$._embedded." + ORDER_ITEMS_PATH_NAME;
+    private static final String JSON_PATH_TO_LIST = "$._embedded." + ORDER_ITEMS_PATH_NAME;
+    private final String update_shopping_cart = ORDER_ITEMS_PATH_NAME + "/update_shopping_cart";
     private String pathToOrder, pathToBook2, pathToBook1, pathToOrderAdmin;
-    private String update_shopping_cart = ORDER_ITEMS_PATH_NAME + "/update_shopping_cart";
 
     @BeforeEach
     private void setPaths() throws Exception {
@@ -435,8 +435,7 @@ public class OrderItemTest extends IntegratedTest {
                 .andReturn().getResponse().getContentAsString();
         String pathToAddress = getObjectMapper().readTree(result).path("_links").path("self").path("href").asText();
         //get shopping cart for user with id = 2, with its own credential
-        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + "get_shopping_cart")
-                .param("username", "user_test1")
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 2 + "/shopping_cart")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(jsonPath("$.currentStatus.status").value(OrderStatus.OPEN.name()))

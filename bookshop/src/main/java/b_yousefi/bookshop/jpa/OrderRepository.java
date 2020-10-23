@@ -46,15 +46,14 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
             "from order_table " +
             "inner join order_status os on order_table.id = os.order_id " +
             "inner join user u on order_table.user_id = u.id " +
-            "where u.username = :username " +
+            "where u.id = :userId " +
             "group by os.order_id) " +
             "and order_status.status = :#{#orderStatus.getStatusCode()} " +
             ")", nativeQuery = true)
-    List<Order> findOrderWithStatusAndUserName(@Param("username") String username, @Param("orderStatus") OrderStatus orderStatus);
+    List<Order> findOrderWithStatusAndUserId(@Param("userId") Long userId, @Param("orderStatus") OrderStatus orderStatus);
 
-    @RestResource(path = "myOrders", rel = "myOrders")
-    @PreAuthorize("isAuthenticated() && (#username == principal.username)")
-    Page<Order> findAllByUser_username(@Param("username") String username, Pageable pageable);
+    @RestResource(exported = false)
+    Page<Order> findAllByUser_Id(@Param("id") Long id, Pageable pageable);
 
     @RestResource(exported = false)
     @PreAuthorize("hasRole('ADMIN')")

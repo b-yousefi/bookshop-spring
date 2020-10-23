@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         }
 )
 public class OrderTest extends IntegratedTest {
-    private static String JSON_PATH_TO_LIST = "$._embedded." + ORDERS_PATH_NAME;
+    private static final String JSON_PATH_TO_LIST = "$._embedded." + ORDERS_PATH_NAME;
     private String pathToAddress;
 
     @BeforeEach
@@ -45,8 +45,7 @@ public class OrderTest extends IntegratedTest {
         getMVC().perform(get(getPathTo(ORDERS_PATH_NAME)))
                 .andExpect(status().isUnauthorized());
 
-        getMVC().perform(get(getSearchPathTo(ORDERS_PATH_NAME) + "myOrders")
-                .param("username", getUser().getUsername()))
+        getMVC().perform(get(getSearchPathTo(USERS_PATH_NAME) + getAdmin().getId() + "/orders"))
                 .andExpect(status().isUnauthorized());
 
         getMVC().perform(get(getSearchPathTo(ORDERS_PATH_NAME) + "myOrdersRegisteredAtDate")
@@ -70,14 +69,13 @@ public class OrderTest extends IntegratedTest {
                 .andExpect(jsonPath("$._links.self.href", endsWith("2")));
 
         //get all its own orders
-        getMVC().perform(get(getSearchPathTo(ORDERS_PATH_NAME) + "myOrders")
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + getUser().getId() + "/orders")
                 .header("Authorization", getUserToken())
-                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER"))
-                .param("username", getUser().getUsername()))
+                .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(3)));
 
         //user with role USER cannot perform get on orders path to get other users orders
-        getMVC().perform(get(getPathTo(ORDERS_PATH_NAME) + 1)
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + getAdmin().getId() + "/orders")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isForbidden());
@@ -94,10 +92,9 @@ public class OrderTest extends IntegratedTest {
 
 
         //get all its own orders
-        getMVC().perform(get(getSearchPathTo(ORDERS_PATH_NAME) + "myOrders")
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + getAdmin().getId() + "/orders")
                 .header("Authorization", getAdminToken())
-                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN"))
-                .param("username", getAdmin().getUsername()))
+                .with(user(getAdmin().getUsername()).password(getAdmin().getPassword()).roles("ADMIN")))
                 .andExpect(jsonPath(JSON_PATH_TO_LIST, hasSize(1)));
     }
 
@@ -380,8 +377,7 @@ public class OrderTest extends IntegratedTest {
     @Test
     void when_user_can_close_its_own_shopping_cart_with_no_address_get_error() throws Exception {
         //get shopping cart for user with id = 2, with its own credential
-        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + "get_shopping_cart")
-                .param("username", "user_test1")
+        getMVC().perform(get(getPathTo(USERS_PATH_NAME) + 2 + "/shopping_cart")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(jsonPath("$.currentStatus.status").value(OrderStatus.OPEN.name()))

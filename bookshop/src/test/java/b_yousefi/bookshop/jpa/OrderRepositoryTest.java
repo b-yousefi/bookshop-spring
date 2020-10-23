@@ -26,7 +26,7 @@ public class OrderRepositoryTest extends DataTest {
     public void findAllByUser_username() {
         Pageable sortedById =
                 PageRequest.of(0, 3, Sort.by("id"));
-        assertThat(getOrderRepository().findAllByUser_username(order.getUser().getUsername(), sortedById)).hasSize(2);
+        assertThat(getOrderRepository().findAllByUser_Id(order.getUser().getId(), sortedById)).hasSize(2);
     }
 
     @Test
