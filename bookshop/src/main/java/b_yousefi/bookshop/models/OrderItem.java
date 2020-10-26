@@ -24,7 +24,7 @@ public class OrderItem {
 
     @NotNull(message = "Every order item must have a book")
     @ManyToOne(targetEntity = Book.class)
-    @JoinColumn(name = "book_id", foreignKey = @ForeignKey(name = "FK_BOOK__ORDER_ITEM"))
+    @JoinColumn(name = "book_id", foreignKey = @ForeignKey(name = "FK_BOOK__ORDER_ITEM"), updatable = false)
     private Book book;
 
     @Builder.Default

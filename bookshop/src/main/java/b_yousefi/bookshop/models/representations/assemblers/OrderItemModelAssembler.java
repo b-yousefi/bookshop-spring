@@ -1,6 +1,6 @@
 package b_yousefi.bookshop.models.representations.assemblers;
 
-import b_yousefi.bookshop.controllers.OrderController;
+import b_yousefi.bookshop.controllers.OrderItemController;
 import b_yousefi.bookshop.jpa.OrderItemRepository;
 import b_yousefi.bookshop.models.OrderItem;
 import b_yousefi.bookshop.models.representations.OrderItemModel;
@@ -33,7 +33,7 @@ public class OrderItemModelAssembler extends ModelAssembler<OrderItem, OrderItem
                 .book(bookModelAssembler.toModel(orderItem.getBook()))
                 .build()
                 .add(fixLinkSelf(
-                        methodOn(OrderController.class)
+                        methodOn(OrderItemController.class)
                                 .getOrderItemById(orderItem.getId()))
                         .withSelfRel());
     }

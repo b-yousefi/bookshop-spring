@@ -1,18 +1,19 @@
 package b_yousefi.bookshop.controllers;
 
-import b_yousefi.bookshop.jpa.OrderItemRepository;
+import b_yousefi.bookshop.jpa.AddressRepository;
 import b_yousefi.bookshop.jpa.OrderRepository;
 import b_yousefi.bookshop.jpa.OrderStatusRecordRepository;
-import b_yousefi.bookshop.jpa.UserRepository;
-import b_yousefi.bookshop.models.*;
+import b_yousefi.bookshop.models.Order;
+import b_yousefi.bookshop.models.OrderStatus;
+import b_yousefi.bookshop.models.OrderStatusRecord;
+import b_yousefi.bookshop.models.User;
 import b_yousefi.bookshop.models.representations.OrderDetailedModel;
-import b_yousefi.bookshop.models.representations.OrderItemModel;
 import b_yousefi.bookshop.models.representations.OrderModel;
 import b_yousefi.bookshop.models.representations.OrderStatusModel;
 import b_yousefi.bookshop.models.representations.assemblers.OrderDetailedModelAssembler;
-import b_yousefi.bookshop.models.representations.assemblers.OrderItemModelAssembler;
 import b_yousefi.bookshop.models.representations.assemblers.OrderModelAssembler;
 import b_yousefi.bookshop.models.representations.assemblers.OrderStatusModelAssembler;
+import b_yousefi.bookshop.services.UserRepositoryUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,6 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +30,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,34 +40,30 @@ import java.util.Optional;
  */
 @RepositoryRestController
 public class OrderController {
-    private UserRepository userRepository;
-    private OrderRepository orderRepository;
-    private OrderItemRepository orderItemRepository;
-    private OrderStatusRecordRepository orderStatusRepository;
-    private OrderModelAssembler orderModelAssembler;
-    private OrderDetailedModelAssembler orderDetailedModelAssembler;
-    private OrderItemModelAssembler orderItemModelAssembler;
-    private OrderStatusModelAssembler orderStatusModelAssembler;
-    private PagedResourcesAssembler<Order> pagedResourcesAssembler;
+    private final UserRepositoryUserDetailsService userDetailsService;
+    private final OrderRepository orderRepository;
+    private final AddressRepository addressRepository;
+    private final OrderStatusRecordRepository orderStatusRepository;
+    private final OrderModelAssembler orderModelAssembler;
+    private final OrderDetailedModelAssembler orderDetailedModelAssembler;
+    private final OrderStatusModelAssembler orderStatusModelAssembler;
+    private final PagedResourcesAssembler<Order> pagedResourcesAssembler;
 
     @Autowired
     OrderController(
-            UserRepository userRepository,
+            UserRepositoryUserDetailsService userDetailsService,
             OrderRepository orderRepository,
-            OrderItemRepository orderItemRepository,
-            OrderStatusRecordRepository orderStatusRepository,
+            AddressRepository addressRepository, OrderStatusRecordRepository orderStatusRepository,
             OrderModelAssembler orderModelAssembler,
             OrderDetailedModelAssembler orderDetailedModelAssembler,
-            OrderItemModelAssembler orderItemModelAssembler,
             OrderStatusModelAssembler orderStatusModelAssembler,
             PagedResourcesAssembler<Order> pagedResourcesAssembler) {
-        this.userRepository = userRepository;
+        this.userDetailsService = userDetailsService;
         this.orderRepository = orderRepository;
-        this.orderItemRepository = orderItemRepository;
+        this.addressRepository = addressRepository;
         this.orderStatusRepository = orderStatusRepository;
         this.orderModelAssembler = orderModelAssembler;
         this.orderDetailedModelAssembler = orderDetailedModelAssembler;
-        this.orderItemModelAssembler = orderItemModelAssembler;
         this.orderStatusModelAssembler = orderStatusModelAssembler;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
@@ -102,75 +97,29 @@ public class OrderController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @RequestMapping(value = "/order_items/{id}", method = RequestMethod.GET)
-    public ResponseEntity<OrderItemModel> getOrderItemById(@PathVariable("id") Long id) {
-        return orderItemRepository.findById(id)
-                .map(orderItemModelAssembler::toModel)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @RequestMapping(value = "/order_items/update_shopping_cart", method = RequestMethod.POST)
+    @RequestMapping(value = "/users/{userId}/orders/{orderId}/close", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<OrderItemModel> updateShoppingCart(@RequestBody EntityModel<OrderItem> orderItemModel)
-            throws Exception {
-        OrderItem orderItem = orderItemModel.getContent();
-
-        if (orderItem != null) {
-            if (orderItem.getOrder() == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            if (orderItem.getOrder().getCurrentStatus().getStatus().equals(OrderStatus.OPEN)) {
-                if (orderItem.getId() != null) {
-                    Optional<OrderItem> orderItemPrev = orderItemRepository.findById(orderItem.getId());
-                    if (orderItemPrev.isPresent()) {
-                        int changedCount = orderItem.getQuantity() - orderItemPrev.get().getQuantity();
-                        if (orderItem.getQuantity() == 0) {
-                            orderItemRepository.delete(orderItem);
-                            orderItem.getBook().putOrder(changedCount);
-                            orderRepository.save(orderItem.getOrder());
-                            return new ResponseEntity<>(orderItemModelAssembler.toModel(orderItem), HttpStatus.OK);
-                        } else {
-
-                            OrderItem orderItem_ = orderItemRepository.save(orderItem);
-                            orderItem.getBook().putOrder(changedCount);
-                            orderRepository.save(orderItem.getOrder());
-                            return new ResponseEntity<>(orderItemModelAssembler.toModel(orderItem_), HttpStatus.OK);
-                        }
-                    } else {
-                        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                    }
-                } else {
-                    OrderItem orderItem_ = orderItemRepository.save(orderItem);
-                    orderItem.getBook().putOrder(orderItem_.getQuantity());
-                    orderRepository.save(orderItem.getOrder());
-                    String selfLink = orderItemModelAssembler.toModel(orderItem_).getLink("self").map(Link::getHref).orElse("");
-                    return ResponseEntity.created(new URI(selfLink)).body(orderItemModelAssembler.toModel(orderItem_));
-                }
-            } else {
-                throw new Exception("Order is not OPEN");
-            }
-        } else {
+    public ResponseEntity<OrderStatusModel> closeShoppingCart(Authentication authentication
+            , @PathVariable Long userId
+            , @PathVariable Long orderId
+            , @RequestBody EntityModel<Order> orderModel
+    ) {
+        if (orderModel.getContent() == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-
-    @RequestMapping(value = "/orders/close_shopping_cart", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<OrderStatusModel> closeShoppingCart(@RequestBody EntityModel<Order> orderModel)
-            throws Exception {
-
-        Optional<Order> opOrder = orderRepository.findById(Objects.requireNonNull(orderModel.getContent()).getId());
-
-        if (opOrder.isPresent()) {
-            Order order = orderRepository.findById(opOrder.get().getId()).get();
-            if (orderModel.getContent().getAddress() == null) {
-                throw  new DataIntegrityViolationException("Order must have an address");
+        Order orderRequest = orderModel.getContent();
+        Optional<Order> opOrder = orderRepository.findById(orderId);
+        if (opOrder.isPresent()
+                && canUpdateOrder(opOrder.get())
+                && hasLoggedInUserAccessToRequestedOrder(authentication.getName(), userId, opOrder.get())) {
+            Order order = opOrder.get();
+            if (orderRequest.getAddress() == null) {
+                throw new DataIntegrityViolationException("Order must have an address");
             }
             if (order.getOrderItems().size() == 0) {
-                throw  new DataIntegrityViolationException("Order cannot be empty!");
+                throw new DataIntegrityViolationException("Order cannot be empty!");
             }
-            order.setAddress(orderModel.getContent().getAddress());
+            order.setAddress(orderRequest.getAddress());
             OrderStatusRecord orderStatusRecord = OrderStatusRecord.builder().order(order).status(OrderStatus.ORDERED).build();
             OrderStatusRecord saved = orderStatusRepository.save(orderStatusRecord);
             return new ResponseEntity<>(orderStatusModelAssembler.toModel(saved), HttpStatus.OK);
@@ -190,6 +139,22 @@ public class OrderController {
     private User getUser() {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByUsername(authentication.getName()).orElse(null);
+        return userDetailsService.loadUserByUsername(authentication.getName());
+    }
+
+    private boolean hasLoggedInUserAccessToRequestedOrder(String loggedInUsername,
+                                                          Long requestUserId,
+                                                          Order order) {
+        User user = userDetailsService.loadUserByUsername(loggedInUsername);
+        if (user.isAdmin()) {
+            return true;
+        }
+        Long orderUserId = order.getUser().getId();
+        return Objects.equals(user.getId(), requestUserId)
+                && orderUserId.equals(requestUserId);
+    }
+
+    private boolean canUpdateOrder(Order order) {
+        return order.getCurrentStatus().getStatus().equals(OrderStatus.OPEN);
     }
 }

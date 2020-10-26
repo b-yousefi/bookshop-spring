@@ -383,11 +383,7 @@ public class OrderTest extends IntegratedTest {
                 .andExpect(jsonPath("$.currentStatus.status").value(OrderStatus.OPEN.name()))
                 .andExpect(jsonPath("$._links.self.href", endsWith("2")));
         //close user shopping cart
-        getMVC().perform(post(getPathTo(ORDERS_PATH_NAME) + "close_shopping_cart")
-                .contentType(MediaType.APPLICATION_JSON).content("{" +
-                        "\"id\" : \"" + 2 + "\" ," +
-                        "\"user\" : \"" + getPathToUser() + "\" ," +
-                        "}")
+        getMVC().perform(post(getPathTo(USERS_PATH_NAME) + 2 + "/orders/2/close")
                 .header("Authorization", getUserToken())
                 .with(user(getUser().getUsername()).password(getUser().getPassword()).roles("USER")))
                 .andExpect(status().isBadRequest());
