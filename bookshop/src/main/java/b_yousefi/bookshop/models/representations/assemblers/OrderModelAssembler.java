@@ -57,11 +57,7 @@ public class OrderModelAssembler extends ModelAssembler<Order, OrderModel> {
 
     @Override
     public CollectionModel<OrderModel> toCollectionModel(Iterable<? extends Order> entities) {
-        CollectionModel<OrderModel> orderModels = super.toCollectionModel(entities);
-
-//        orderModels.add(fixLinkSelf(methodOn(OrderController.class).getOrders()).withSelfRel());
-
-        return orderModels;
+        return super.toCollectionModel(entities);
     }
 
     protected OrderStatusModel toOrderStatusModel(OrderStatusRecord orderStatus, OrderModel orderModel) {

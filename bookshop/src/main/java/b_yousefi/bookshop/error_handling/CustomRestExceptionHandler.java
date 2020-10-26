@@ -39,7 +39,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final List<ErrorCause> errors = new ArrayList<>();
         for (final FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.add(new ErrorCause(error.getField(), error.getDefaultMessage()));
@@ -54,7 +54,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleBindException(final BindException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final List<ErrorCause> errors = new ArrayList<>();
         for (final FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.add(new ErrorCause(error.getField(), error.getDefaultMessage()));
@@ -69,7 +69,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(final TypeMismatchException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final String error = ex.getValue() + " value for " + ex.getPropertyName() + " should be of type " + ex.getRequiredType();
         ErrorCause errorCause = new ErrorCause(ex.getPropertyName(), error);
         final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errorCause);
@@ -79,7 +79,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestPart(final MissingServletRequestPartException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final String error = ex.getRequestPartName() + " part is missing";
         ErrorCause errorCause = new ErrorCause(ex.getRequestPartName(), error);
         final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errorCause);
@@ -89,19 +89,19 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(final MissingServletRequestParameterException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final String error = ex.getParameterName() + " parameter is missing";
         ErrorCause errorCause = new ErrorCause(ex.getParameterName(), error);
         final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errorCause);
         return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 
-    //
+
 
     @ExceptionHandler({MethodArgumentTypeMismatchException.class})
     public ResponseEntity<Object> handleMethodArgumentTypeMismatch(final MethodArgumentTypeMismatchException ex, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final String error = ex.getName() + " should be of type " + ex.getRequiredType().getName();
         ErrorCause errorCause = new ErrorCause(ex.getName(), error);
         final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errorCause);
@@ -111,7 +111,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({org.hibernate.exception.ConstraintViolationException.class})
     public ResponseEntity<Object> handleHibernateConstraintViolationException(final org.hibernate.exception.ConstraintViolationException ex, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         String message = ex.getLocalizedMessage();
         if (message.contains("UK_CATEGORY__NAME_PARENT")) {
             message = "Duplicate name, please choose another name";
@@ -124,7 +124,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({DataIntegrityViolationException.class})
     public ResponseEntity<Object> handleDaoDataIntegrityViolationException(final DataIntegrityViolationException ex, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         ErrorCause errorCause;
         if (ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
             org.hibernate.exception.ConstraintViolationException exDetail =
@@ -167,7 +167,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<Object> handleConstraintViolation(final ConstraintViolationException ex, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final List<ErrorCause> errors = new ArrayList<>();
         Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
         for (ConstraintViolation<?> violation : violations) {
@@ -185,7 +185,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(final NoHandlerFoundException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final String error = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
         ErrorCause errorCause = new ErrorCause(ex.getHttpMethod(), error);
         final ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), errorCause);
@@ -197,7 +197,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(final HttpRequestMethodNotSupportedException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final String error = "method" + ex.getMethod() + " is not supported for this request";
         ErrorCause errorCause = new ErrorCause(ex.getMethod(), error);
         final ApiError apiError = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, ex.getLocalizedMessage(), errorCause);
@@ -209,7 +209,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(final HttpMediaTypeNotSupportedException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         final String error = "media type" + ex.getContentType() + " is not supported";
         ErrorCause errorCause = new ErrorCause(Objects.requireNonNull(ex.getContentType()).toString(), error);
         final ApiError apiError = new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ex.getLocalizedMessage(), errorCause);
@@ -221,7 +221,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({AuthenticationException.class})
     public ResponseEntity<Object> handleAuthenticationException(final AuthenticationException ex, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         ErrorCause errorCause = new ErrorCause(AuthenticationException.class.getName(), ex.getMessage());
         final ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, ex.getLocalizedMessage(),
                 errorCause);
@@ -233,7 +233,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({AccessDeniedException.class})
     public ResponseEntity<Object> handleAccessDeniedException(final AccessDeniedException ex, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         ErrorCause errorCause = new ErrorCause(AccessDeniedException.class.getName(), ex.getMessage());
         final ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, ex.getLocalizedMessage(), errorCause);
         return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
@@ -244,7 +244,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAll(final Exception ex, final WebRequest request) {
         logger.info(ex.getClass().getName());
-        //
+
         if (ex instanceof TransactionSystemException) {
             if (((TransactionSystemException) ex).getMostSpecificCause() instanceof ConstraintViolationException) {
                 ConstraintViolationException constraintViolationException = (ConstraintViolationException) ((TransactionSystemException) ex).getMostSpecificCause();

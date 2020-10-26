@@ -35,28 +35,4 @@ public class CategoryAssembler extends RepresentationModelAssemblerSupport<Categ
 
         return categoryReps;
     }
-
-//
-//    @Override
-//    public CollectionModel<CategoryRep> toCollectionModel(Iterable<? extends Category> entities) {
-//
-//        List<CategoryRep> categoryReps = new ArrayList<>();
-//        entities.forEach(cat -> {
-//            categoryReps.add(new CategoryRep(cat));
-//        });
-//        return new CollectionModel<>(categoryReps);
-//    }
-
-    //    public CategoryAssembler() {
-//        super(CategoryController.class, CategoryRep.class);
-//    }
-//    @Override
-//    protected CategoryRep instantiateResource(Category category) {
-//        return new CategoryRep(category);
-//    }
-//
-//    @Override
-//    public CategoryRep toResource(Category category) {
-//        return createResourceWithId(category.getId(), category);
-//    }
 }

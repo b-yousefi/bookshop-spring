@@ -33,11 +33,8 @@ public class OrderItemController {
     private final UserRepositoryUserDetailsService userDetailsService;
 
     @Autowired
-    OrderItemController(
-            OrderItemService orderItemService,
-            UserRepositoryUserDetailsService userDetailsService,
-            OrderRepository orderRepository,
-            OrderItemRepository orderItemRepository,
+    OrderItemController(OrderItemService orderItemService, UserRepositoryUserDetailsService userDetailsService,
+            OrderRepository orderRepository, OrderItemRepository orderItemRepository,
             OrderItemModelAssembler orderItemModelAssembler) {
         this.orderItemService = orderItemService;
         this.orderRepository = orderRepository;
@@ -46,54 +43,45 @@ public class OrderItemController {
         this.userDetailsService = userDetailsService;
     }
 
-    @RequestMapping(value = "/order_items/{id}", method = RequestMethod.GET)
+    @GetMapping(value = "/order_items/{id}")
     public ResponseEntity<OrderItemModel> getOrderItemById(@PathVariable("id") Long id) {
-        return orderItemRepository.findById(id)
-                .map(orderItemModelAssembler::toModel)
-                .map(ResponseEntity::ok)
+        return orderItemRepository.findById(id).map(orderItemModelAssembler::toModel).map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @RequestMapping(value = "/users/{userId}/orders/{orderId}/order_items", method = RequestMethod.POST)
+    @PostMapping(value = "/users/{userId}/orders/{orderId}/order_items")
     @ResponseBody
-    public ResponseEntity<OrderItemModel>
-    addOrderItemToShoppingCart(
-            Authentication authentication,
-            @PathVariable Long userId,
-            @PathVariable Long orderId,
-            @RequestBody EntityModel<OrderItem> orderItemRequest) throws URISyntaxException {
-        if (orderItemRequest.getContent() == null) {
+    public ResponseEntity<OrderItemModel> addOrderItemToShoppingCart(Authentication authentication,
+            @PathVariable Long userId, @PathVariable Long orderId, @RequestBody EntityModel<OrderItem> orderItemRequest)
+            throws URISyntaxException {
+        OrderItem orderItem = orderItemRequest.getContent();
+        if (orderItem == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        OrderItem orderItem = orderItemRequest.getContent();
         Optional<Order> opOrder = orderRepository.findById(orderId);
         if (opOrder.isPresent()
                 && hasLoggedInUserAccessToRequestedOrder(authentication.getName(), userId, opOrder.get())
-                && canUpdateOrder(opOrder.get())
-        ) {
+                && canUpdateOrder(opOrder.get())) {
             orderItem.setOrder(opOrder.get());
             OrderItem savedOrderItem = orderItemService.addOrderItem(orderItem);
-            String selfLink = orderItemModelAssembler.toModel(savedOrderItem).getLink("self").map(Link::getHref).orElse("");
+            String selfLink = orderItemModelAssembler.toModel(savedOrderItem).getLink("self").map(Link::getHref)
+                    .orElse("");
             return ResponseEntity.created(new URI(selfLink)).body(orderItemModelAssembler.toModel(savedOrderItem));
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-
-    @RequestMapping(value = "/users/{userId}/orders/{orderId}/order_items/{orderItemId}", method = RequestMethod.PATCH)
+    @PatchMapping(value = "/users/{userId}/orders/{orderId}/order_items/{orderItemId}")
     @ResponseBody
-    public ResponseEntity<OrderItemModel>
-    updateOrderItemInShoppingCart(
-            Authentication authentication,
-            @PathVariable Long userId,
-            @PathVariable Long orderId,
-            @PathVariable Long orderItemId,
+    public ResponseEntity<OrderItemModel> updateOrderItemInShoppingCart(Authentication authentication,
+            @PathVariable Long userId, @PathVariable Long orderId, @PathVariable Long orderItemId,
             @RequestBody EntityModel<OrderItem> orderItemRequest) {
-        if (orderItemRequest.getContent() == null) {
+        OrderItem orderItem = orderItemRequest.getContent();
+        if (orderItem == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        OrderItem orderItem = orderItemRequest.getContent();
+
         Optional<OrderItem> opOrderItem = orderItemRepository.findById(orderItemId);
         if (opOrderItem.isPresent()
                 && hasLoggedInUserAccessToRequestedOrder(authentication.getName(), userId, opOrderItem.get().getOrder())
@@ -107,14 +95,10 @@ public class OrderItemController {
         }
     }
 
-    @RequestMapping(value = "/users/{userId}/orders/{orderId}/order_items/{orderItemId}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/users/{userId}/orders/{orderId}/order_items/{orderItemId}")
     @ResponseBody
-    public ResponseEntity<OrderItemModel>
-    deleteOrderItemFromShoppingCart(
-            Authentication authentication,
-            @PathVariable Long userId,
-            @PathVariable Long orderId,
-            @PathVariable Long orderItemId) {
+    public ResponseEntity<OrderItemModel> deleteOrderItemFromShoppingCart(Authentication authentication,
+            @PathVariable Long userId, @PathVariable Long orderId, @PathVariable Long orderItemId) {
         Optional<OrderItem> opOrderItem = orderItemRepository.findById(orderItemId);
         if (opOrderItem.isPresent()
                 && hasLoggedInUserAccessToRequestedOrder(authentication.getName(), userId, opOrderItem.get().getOrder())
@@ -135,15 +119,12 @@ public class OrderItemController {
         return order.getCurrentStatus().getStatus().equals(OrderStatus.OPEN);
     }
 
-    private boolean hasLoggedInUserAccessToRequestedOrder(String loggedInUsername,
-                                                          Long requestUserId,
-                                                          Order order) {
+    private boolean hasLoggedInUserAccessToRequestedOrder(String loggedInUsername, Long requestUserId, Order order) {
         User user = userDetailsService.loadUserByUsername(loggedInUsername);
         if (user.isAdmin()) {
             return true;
         }
         Long orderUserId = order.getUser().getId();
-        return Objects.equals(user.getId(), requestUserId)
-                && orderUserId.equals(requestUserId);
+        return Objects.equals(user.getId(), requestUserId) && orderUserId.equals(requestUserId);
     }
 }

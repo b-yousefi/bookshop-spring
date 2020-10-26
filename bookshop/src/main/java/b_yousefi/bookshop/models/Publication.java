@@ -8,8 +8,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 /**
- * Created by: b.yousefi
- * Date: 5/10/2020
+ * Created by: b.yousefi Date: 5/10/2020
  */
 @Data
 @Entity

@@ -30,7 +30,6 @@ public class Order {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_USER__ORDER"))
     private User user;
 
-    //    @NotNull(message = "Every order must have an address")
     @ManyToOne(targetEntity = Address.class)
     @JoinColumn(name = "address_id", foreignKey = @ForeignKey(name = "FK_ADDRESS__ORDER"))
     private Address address;

@@ -12,8 +12,7 @@ import java.util.List;
 import static javax.persistence.CascadeType.ALL;
 
 /**
- * Created by: b.yousefi
- * Date: 5/10/2020
+ * Created by: b.yousefi Date: 5/10/2020
  */
 
 @Data
@@ -22,11 +21,8 @@ import static javax.persistence.CascadeType.ALL;
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 @ToString(exclude = "books")
-@Table(uniqueConstraints = {
-        @UniqueConstraint(name = "UK_AUTHOR__fullName", columnNames = {"fullName"})
-})
+@Table(uniqueConstraints = { @UniqueConstraint(name = "UK_AUTHOR__fullName", columnNames = { "fullName" }) })
 public class Author {
-    private static final long serialVersionUID = 1L;
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
