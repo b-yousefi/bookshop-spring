@@ -1,6 +1,6 @@
 package b_yousefi.bookshop.integrated_tests;
 
-import b_yousefi.bookshop.models.Author;
+import b_yousefi.bookshop.entities.Author;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

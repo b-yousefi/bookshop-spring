@@ -1,9 +1,9 @@
 package b_yousefi.bookshop.controllers;
 
-import b_yousefi.bookshop.jpa.CategoryRepository;
-import b_yousefi.bookshop.models.Category;
-import b_yousefi.bookshop.models.representations.CategoryRep;
-import b_yousefi.bookshop.models.representations.assemblers.CategoryAssembler;
+import b_yousefi.bookshop.entities.Category;
+import b_yousefi.bookshop.repositories.CategoryRepository;
+import b_yousefi.bookshop.web.assemblers.CategoryAssembler;
+import b_yousefi.bookshop.web.models.CategoryRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;

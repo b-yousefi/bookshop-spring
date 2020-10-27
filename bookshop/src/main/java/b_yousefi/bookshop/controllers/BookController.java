@@ -1,9 +1,9 @@
 package b_yousefi.bookshop.controllers;
 
-import b_yousefi.bookshop.jpa.BookRepository;
-import b_yousefi.bookshop.models.Book;
-import b_yousefi.bookshop.models.representations.BookModel;
-import b_yousefi.bookshop.models.representations.assemblers.BookModelAssembler;
+import b_yousefi.bookshop.entities.Book;
+import b_yousefi.bookshop.repositories.BookRepository;
+import b_yousefi.bookshop.web.assemblers.BookModelAssembler;
+import b_yousefi.bookshop.web.models.BookModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

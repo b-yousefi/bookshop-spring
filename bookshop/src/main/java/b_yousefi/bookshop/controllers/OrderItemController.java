@@ -1,15 +1,15 @@
 package b_yousefi.bookshop.controllers;
 
-import b_yousefi.bookshop.jpa.OrderItemRepository;
-import b_yousefi.bookshop.jpa.OrderRepository;
-import b_yousefi.bookshop.models.Order;
-import b_yousefi.bookshop.models.OrderItem;
-import b_yousefi.bookshop.models.OrderStatus;
-import b_yousefi.bookshop.models.User;
-import b_yousefi.bookshop.models.representations.OrderItemModel;
-import b_yousefi.bookshop.models.representations.assemblers.OrderItemModelAssembler;
+import b_yousefi.bookshop.entities.Order;
+import b_yousefi.bookshop.entities.OrderItem;
+import b_yousefi.bookshop.entities.OrderStatus;
+import b_yousefi.bookshop.entities.User;
+import b_yousefi.bookshop.repositories.OrderItemRepository;
+import b_yousefi.bookshop.repositories.OrderRepository;
 import b_yousefi.bookshop.services.OrderItemService;
 import b_yousefi.bookshop.services.UserRepositoryUserDetailsService;
+import b_yousefi.bookshop.web.assemblers.OrderItemModelAssembler;
+import b_yousefi.bookshop.web.models.OrderItemModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.EntityModel;

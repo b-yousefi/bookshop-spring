@@ -1,6 +1,6 @@
 package b_yousefi.bookshop.integrated_tests;
 
-import b_yousefi.bookshop.models.OrderStatus;
+import b_yousefi.bookshop.entities.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;

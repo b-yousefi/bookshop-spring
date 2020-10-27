@@ -1,7 +1,7 @@
 package b_yousefi.bookshop.integrated_tests;
 
 import b_yousefi.bookshop.BookshopApplication;
-import b_yousefi.bookshop.models.User;
+import b_yousefi.bookshop.entities.User;
 import b_yousefi.bookshop.security.JwtTokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;

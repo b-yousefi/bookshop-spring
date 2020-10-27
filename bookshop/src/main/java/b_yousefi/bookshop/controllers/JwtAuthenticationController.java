@@ -1,13 +1,13 @@
 package b_yousefi.bookshop.controllers;
 
-import b_yousefi.bookshop.models.JwtRequest;
-import b_yousefi.bookshop.models.JwtResponse;
-import b_yousefi.bookshop.models.User;
-import b_yousefi.bookshop.models.representations.UserModel;
-import b_yousefi.bookshop.models.representations.assemblers.UserModelAssembler;
+import b_yousefi.bookshop.entities.User;
 import b_yousefi.bookshop.security.JwtTokenUtil;
 import b_yousefi.bookshop.security.TokenAuthenticationException;
 import b_yousefi.bookshop.services.UserRepositoryUserDetailsService;
+import b_yousefi.bookshop.web.JwtRequest;
+import b_yousefi.bookshop.web.JwtResponse;
+import b_yousefi.bookshop.web.assemblers.UserModelAssembler;
+import b_yousefi.bookshop.web.models.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.HttpStatus;
