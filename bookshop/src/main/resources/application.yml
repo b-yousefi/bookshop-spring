@@ -11,6 +11,12 @@ logging:
   level:
     org.springframework.data.rest: debug
 
+springdoc:
+  api-docs:
+    path: /bookshop/api-docs
+  swagger-ui:
+    path: /bookshop/api-docs/swagger-ui.html
+
 ---
 spring:
   profiles: dev
@@ -30,7 +36,6 @@ spring:
     show-sql: true
     #for database auto creation
     generate-ddl: true
-
 
 logging:
   config: classpath:logback-prod.xml

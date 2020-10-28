@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,8 +19,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
- * Created by: b.yousefi
- * Date: 6/9/2020
+ * Created by: b.yousefi Date: 6/9/2020
  */
 @RestController
 public class CategoryController {
@@ -31,7 +30,7 @@ public class CategoryController {
     @Autowired
     CategoryAssembler categoryAssembler;
 
-    @RequestMapping("/bookshop/api/categories/allcategories")
+    @GetMapping("/bookshop/api/categories/allcategories")
     @ResponseBody
     public ResponseEntity<CollectionModel<CategoryRep>> fetchAll() {
         List<Category> categoryList = categoryRepository.findAllByParentCat_Id(null);

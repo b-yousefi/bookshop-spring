@@ -24,8 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by: b.yousefi
- * Date: 5/10/2020
+ * Created by: b.yousefi Date: 5/10/2020
  */
 
 @Configuration
@@ -57,8 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
-                .authorizeRequests()
+        http.cors().and().csrf().disable().authorizeRequests().antMatchers("/**/api-docs/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/**/authenticate", "/**/register").permitAll()
                 .antMatchers(HttpMethod.PATCH, "/**/users/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers(HttpMethod.GET, "/**/users/**").hasAnyRole("USER", "ADMIN")
@@ -67,14 +65,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/**/order_items/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers(HttpMethod.POST, "/**/order_items/update_shopping_cart").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/**/addresses/**", "/**/orders/**").hasAnyRole("USER", "ADMIN")
-                .antMatchers(HttpMethod.GET, "/**/books/**", "/**/authors/**", "/**/publications/**", "/**/categories/**").permitAll()
-                .antMatchers("/**/users/**", "/**/dBFiles/**", "/**/books/**", "/**/authors/**", "/**/publications/**", "/**/categories/**").hasRole("ADMIN")
-                .antMatchers("/**")
-                .denyAll()
+                .antMatchers(HttpMethod.GET, "/**/books/**", "/**/authors/**", "/**/publications/**",
+                        "/**/categories/**")
+                .permitAll()
+                .antMatchers("/**/users/**", "/**/dBFiles/**", "/**/books/**", "/**/authors/**", "/**/publications/**",
+                        "/**/categories/**")
+                .hasRole("ADMIN").antMatchers("/**").denyAll()
                 // all other requests need to be authenticated
-                .anyRequest()
-                .authenticated().and()
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+                .anyRequest().authenticated().and().exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // Add a filter to validate the tokens with every request
@@ -84,8 +83,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000",
-                "https://byousefi.ir","https://www.byousefi.ir"));
+        configuration
+                .setAllowedOrigins(List.of("http://localhost:3000", "https://byousefi.ir", "https://www.byousefi.ir"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "OPTION", "DELETE"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
         configuration.setMaxAge(1800L);
