@@ -27,10 +27,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-
 /**
- * Created by: b.yousefi
- * Date: 5/15/2020
+ * Created by: b.yousefi Date: 5/15/2020
  */
 @RepositoryRestController
 public class UserController {
@@ -42,13 +40,10 @@ public class UserController {
     private final OrderModelAssembler orderModelAssembler;
     private final PagedResourcesAssembler<Order> pagedResourcesAssemblerOrder;
 
-    public UserController(UserRepositoryUserDetailsService userDetailsService,
-                          UserModelAssembler userModelAssembler,
-                          UserRepository userRepository,
-                          OrderRepository orderRepository,
-                          OrderDetailedModelAssembler orderDetailedModelAssembler,
-                          OrderModelAssembler orderModelAssembler,
-                          PagedResourcesAssembler<Order> pagedResourcesAssemblerOrder) {
+    public UserController(UserRepositoryUserDetailsService userDetailsService, UserModelAssembler userModelAssembler,
+            UserRepository userRepository, OrderRepository orderRepository,
+            OrderDetailedModelAssembler orderDetailedModelAssembler, OrderModelAssembler orderModelAssembler,
+            PagedResourcesAssembler<Order> pagedResourcesAssemblerOrder) {
         this.userDetailsService = userDetailsService;
         this.userModelAssembler = userModelAssembler;
         this.orderDetailedModelAssembler = orderDetailedModelAssembler;
@@ -58,7 +53,7 @@ public class UserController {
         this.pagedResourcesAssemblerOrder = pagedResourcesAssemblerOrder;
     }
 
-    @RequestMapping(value = "/users/{userId}", method = RequestMethod.PATCH)
+    @PatchMapping(value = "/users/{userId}")
     @ResponseBody
     public ResponseEntity<UserModel> saveUser(@PathVariable Long userId, @RequestBody User usr) {
         Optional<User> opUser = userRepository.findById(userId);
@@ -79,9 +74,9 @@ public class UserController {
 
     }
 
-    @RequestMapping(value = "/users/{userId}/shopping_cart", method = RequestMethod.GET)
+    @GetMapping(value = "/users/{userId}/shopping_cart")
     public ResponseEntity<OrderDetailedModel> getShoppingCart(@PathVariable Long userId,
-                                                              Authentication authentication) {
+            Authentication authentication) {
         if (!hasLoggedInUserAccessToRequestedUser(authentication.getName(), userId)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
@@ -111,40 +106,32 @@ public class UserController {
         return Objects.equals(user.getUsername(), requestUsername);
     }
 
-    @RequestMapping(value = "/users/{userId}/orders", method = RequestMethod.GET)
-    public ResponseEntity<CollectionModel<OrderModel>> getOrders(
-            @PathVariable Long userId,
-            Pageable pageable,
+    @GetMapping(value = "/users/{userId}/orders")
+    public ResponseEntity<CollectionModel<OrderModel>> getOrders(@PathVariable Long userId, Pageable pageable,
             Authentication authentication) {
         if (!hasLoggedInUserAccessToRequestedUser(authentication.getName(), userId)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
         Page<Order> orderEntities = orderRepository.findAllByUser_Id(userId, pageable);
-        PagedModel<OrderModel> collModel = pagedResourcesAssemblerOrder
-                .toModel(orderEntities, orderModelAssembler);
+        PagedModel<OrderModel> collModel = pagedResourcesAssemblerOrder.toModel(orderEntities, orderModelAssembler);
 
         return new ResponseEntity<>(collModel, HttpStatus.OK);
     }
 
-
-    @RequestMapping(value = "/users/search/findUser", method = RequestMethod.GET)
+    @GetMapping(value = "/users/search/findUser")
     public ResponseEntity<UserModel> getUserByUsername(@RequestParam String username, Authentication authentication) {
         if (!hasLoggedInUserAccessToRequestedUser(authentication.getName(), username)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        return userRepository.findByUsername(username)
-                .map(userModelAssembler::toModel)
-                .map(ResponseEntity::ok)
+        return userRepository.findByUsername(username).map(userModelAssembler::toModel).map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @RequestMapping(value = "/users/{userId}", method = RequestMethod.GET)
+    @GetMapping(value = "/users/{userId}")
     public ResponseEntity<UserModel> getUserById(@PathVariable Long userId) {
-        return userRepository.findById(userId)
-                .map(userModelAssembler::toModel)
-                .map(ResponseEntity::ok)
+        return userRepository.findById(userId).map(userModelAssembler::toModel).map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 }

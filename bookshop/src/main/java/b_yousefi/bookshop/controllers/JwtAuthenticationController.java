@@ -17,12 +17,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Created by: b.yousefi
- * Date: 5/11/2020
+ * Created by: b.yousefi Date: 5/11/2020
  */
 @RestController
 @BasePathAwareController
@@ -37,16 +38,15 @@ public class JwtAuthenticationController {
     @Autowired
     private UserModelAssembler userModelAssembler;
 
-    @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+    @PostMapping(value = "/authenticate")
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(authenticationRequest.getUsername());
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String token = jwtTokenUtil.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    private void authenticate(String username, String password) throws Exception {
+    private void authenticate(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
@@ -56,7 +56,7 @@ public class JwtAuthenticationController {
         }
     }
 
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    @PostMapping(value = "/register")
     public ResponseEntity<UserModel> saveUser(@RequestBody User user) {
         User createdUser = userDetailsService.save(user);
         return new ResponseEntity<>(userModelAssembler.toModel(createdUser), HttpStatus.CREATED);
